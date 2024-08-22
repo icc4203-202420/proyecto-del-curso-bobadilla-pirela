@@ -1,6 +1,9 @@
 class API::V1::UsersController < ApplicationController
+  include Authenticable
+  
   respond_to :json
-  before_action :set_user, only: [:show, :update]  
+  before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
+  before_action :verify_jwt_token, only: [:friendships, :create_friendship]  
   
   def index
     @users = User.includes(:reviews, :address).all   
