@@ -50,7 +50,7 @@ RSpec.describe "API::V1::Bars", type: :request do
           post api_v1_bars_path, params: { bar: valid_attributes }, 
             headers: { 'Authorization' => "Bearer #{@token}" }
         }.to change(Bar, :count).by(1)
-        
+        puts "Response Body:"
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("Bar created successfully.")
       end
