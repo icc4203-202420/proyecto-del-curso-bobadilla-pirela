@@ -1,5 +1,8 @@
 class API::V1::FriendshipsController < ApplicationController
+    include Authenticable
+
     before_action :set_user
+    before_action :verify_jwt_token, only: [:create, :index]
   
     def index
       friendships = @user.friendships.includes(:friend, :bar)
