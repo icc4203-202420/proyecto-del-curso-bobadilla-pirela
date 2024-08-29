@@ -4,23 +4,23 @@ import main_icon from '../assets/icon_beercheers.png';
 import axios from 'axios';
 import { ChevronRight } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
-import SearchIcon from '../assets/searchgray.png';
+import SearchIcon from '../assets/searchyellow.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
 
-function BarsIndex() {
-  const [bars, setBars] = useState([]);
+function BeersIndex() {
+  const [beers, setBeers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/api/v1/bars')
+    axios.get('http://localhost:3000/api/api/v1/beers')
       .then(response => {
-        console.log(response.data); // Verifica la respuesta aquí
-        setBars(response.data.bars || []);
+        console.log(response.data);
+        setBeers(response.data.beers || []);
       })
       .catch(error => {
-        console.error("No se pudieron capturar los bars!", error);
+        console.error("No se pudieron capturar las beers!", error);
       });
   }, []);
 
@@ -49,7 +49,7 @@ function BarsIndex() {
         }}
       >
         Find your<br />
-        favorite bar
+        favorite beer
       </Typography>
 
       <Box
@@ -92,13 +92,13 @@ function BarsIndex() {
         </Box>
 
       <List sx={{ textAlign: 'left', color: 'white' }}>
-      {Array.isArray(bars) && bars.map(bar => (
-        <ListItem key={bar.id} sx={{
+      {Array.isArray(beers) && beers.map(beer => (
+        <ListItem key={beer.id} sx={{
           justifyContent: 'center',
           display: 'flex',
           color: 'white',
         }}>
-          <ListItemText primary={bar.name} sx={{ textAlign: 'left', color: 'white' }} />
+          <ListItemText primary={beer.name} sx={{ textAlign: 'left', color: 'white' }} />
           <ListItemIcon edge="end">
             <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} /> {}
           </ListItemIcon>
@@ -108,7 +108,7 @@ function BarsIndex() {
 
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
         <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
-          <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={<HomeIcon />} sx={{ color: '#CFB523' }} />
+          <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={<HomeIcon />} sx={{ color: '#E3E5AF' }} />
           <BottomNavigationAction onClick={() => navigate('/beers')} label="Search" icon={
             <Box
               component="img"
@@ -117,12 +117,12 @@ function BarsIndex() {
               sx={{ width: 32, height: 26 }}
             />
           }/>
-          <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
-          <BottomNavigationAction onClick={() => navigate('/bars')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
+          <BottomNavigationAction onClick={() => navigate('/beers')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
+          <BottomNavigationAction onClick={() => navigate('/beers')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
         </BottomNavigation>
       </Box>
     </Container>
   );
 }
 
-export default BarsIndex;
+export default BeersIndex;

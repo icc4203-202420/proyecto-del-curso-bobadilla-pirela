@@ -1,33 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Container, Box, Typography, Button, AppBar, Toolbar, IconButton } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/Home';
+import './App.css'
 import BarsIndex from './components/BarsIndex';
+import BeersIndex from './components/BeersIndex';
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <Router>
-      <AppBar position="static" >
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Mi Aplicación
-          </Typography>
-          <IconButton color="inherit" component={Link} to="/">
-            Home
-          </IconButton>
-        </Toolbar>
-      </AppBar>
       <Container>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/beers" element={<BeersIndex />} />
+          <Route path="/bars" element={<BarsIndex />} />
         </Routes>
-        <Box sx={{ textAlign: 'center', marginTop: 4 }}>
-          <Typography variant="h3" gutterBottom>
-            Vite + React
-          </Typography>
-        </Box>
       </Container>
     </Router>
   );
