@@ -8,7 +8,7 @@ const theme = createTheme({
         'Arial',
         'sans-serif'
     ].join(','), // Definiendo Roboto como la fuente principal
-    },
+  },
   palette: {
     primary: {
       main: '#569de3',  // Un azul suave, cambia esto por el color que prefieras
@@ -20,26 +20,23 @@ const theme = createTheme({
       main: '#ff1744',
     },
     background: {
-      default: '#fff',
-      paper: '#f5f5f5',
+      default: '#303030', // Color de fondo general
+      paper: '#424242',   // Color de fondo para papel (opcional)
     },
     text: {
-      primary: '#333333',  // Color para texto principal
-      secondary: '#555555',  // Color para texto secundario
+      primary: '#ffffff',  // Color para texto principal, blanco para contraste
+      secondary: '#b0b0b0',  // Color para texto secundario
       link: '#1872cc',  // Puedes agregar esto para links
     },
   },
   components: {
-    // Para botones específicos puedes hacer ajustes aquí
     MuiButton: {
       styleOverrides: {
         root: {
-          // Aplica estilos adicionales aquí si es necesario
           fontWeight: 'bold',
         },
       },
     },
-    // Ajustes para AppBar, por ejemplo, la topbar
     MuiAppBar: {
       styleOverrides: {
         colorPrimary: {
