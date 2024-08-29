@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
+import BarsIndex from './components/BarsIndex';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,6 +14,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/bars" element={<BarsIndex />} />
       </Routes>
     </Router>
   )
