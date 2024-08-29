@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, TextField, List, ListItem, ListItemText, ListItemIcon, Typography,  BottomNavigation, BottomNavigationAction, Button, Link, IconButton, FormControl, InputAdornment} from '@mui/material';
+import { Container, Box, TextField, List, ListItem, ListItemText, ListItemIcon, Typography, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import main_icon from '../assets/icon_beercheers.png';
 import axios from 'axios';
 import { ChevronRight } from '@mui/icons-material';
@@ -8,9 +8,11 @@ import SearchIcon from '../assets/searchyellow.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
+import HomeButton from './HomeButton';
 
 function BeersIndex() {
   const [beers, setBeers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,13 +26,19 @@ function BeersIndex() {
       });
   }, []);
 
+  const filteredBeers = beers.filter(beer =>
+    beer.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Container component="main" maxWidth="md">
+      <HomeButton />
+      
       <Box
-      component="img"
-      src={main_icon}
-      alt="Icon"
-      sx={{ width: 100, height: 'auto', marginBottom: 1 }}
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 1 }}
       />
 
       <Typography
@@ -40,12 +48,12 @@ function BeersIndex() {
           color: 'white',
           textAlign: 'center',
           mt: 2,
-          fontFamily: 'Roboto, sans-serif', // Fuente Roboto
-          fontWeight: 900, // ExtraBold (800)
-          fontSize: '50px', // Tamaño del texto
-          textShadow: '1px 3px 3px black', // Sombra del texto
-          WebkitTextStroke: '1px black', // Contorno del texto para WebKit (Chrome, Safari)
-          MozTextStroke: '1px black', // Contorno del texto para Firefox
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 900,
+          fontSize: '50px',
+          textShadow: '1px 3px 3px black',
+          WebkitTextStroke: '1px black',
+          MozTextStroke: '1px black',
         }}
       >
         Find your<br />
@@ -53,57 +61,63 @@ function BeersIndex() {
       </Typography>
 
       <Box
-          component="form"
-          noValidate
-          sx={{ mt: 4 }}
-        >
-          <TextField
-            id="filled-basic"
-            variant="filled"
-            fullWidth
-            label="Name"
-            sx={{
-              backgroundColor: '#D9D9D9', // Color de fondo
-              borderRadius: '8px', // Bordes redondeados
-              '& .MuiInputBase-input': {
-                color: '#606060', // Color del texto
-              },
-              '& .MuiInputLabel-root': {
-                color: '#787878', // Color del label
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: '#787878', // Color del label al enfocar
-              },
-              '& .MuiFilledInput-root': {
-                borderRadius: '8px', // Bordes redondeados del fondo
-                backgroundColor: '#D9D9D9', // Color de fondo
-              },
-              '& .MuiFilledInput-root:before': {
-                borderColor: '#303030', // Borde cuando el campo no está enfocado
-              },
-              '& .MuiFilledInput-root:hover:before': {
-                borderColor: '#303030', // Borde cuando el campo está en hover
-              },
-              '& .MuiFilledInput-root:after': {
-                borderColor: '#303030', // Color del borde al enfocar
-              },
-            }}
-          />
-        </Box>
+        component="form"
+        noValidate
+        sx={{ mt: 4 }}
+      >
+        <TextField
+          id="filled-basic"
+          variant="filled"
+          fullWidth
+          label="Name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{
+            backgroundColor: '#D9D9D9',
+            borderRadius: '8px',
+            '& .MuiInputBase-input': {
+              color: '#606060',
+            },
+            '& .MuiInputLabel-root': {
+              color: '#787878',
+            },
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#787878',
+            },
+            '& .MuiFilledInput-root': {
+              borderRadius: '8px',
+              backgroundColor: '#D9D9D9',
+            },
+            '& .MuiFilledInput-root:before': {
+              borderColor: '#303030',
+            },
+            '& .MuiFilledInput-root:hover:before': {
+              borderColor: '#303030',
+            },
+            '& .MuiFilledInput-root:after': {
+              borderColor: '#303030',
+            },
+          }}
+        />
+      </Box>
 
       <List sx={{ textAlign: 'left', color: 'white' }}>
-      {Array.isArray(beers) && beers.map(beer => (
-        <ListItem key={beer.id} sx={{
-          justifyContent: 'center',
-          display: 'flex',
-          color: 'white',
-        }}>
-          <ListItemText primary={beer.name} sx={{ textAlign: 'left', color: 'white' }} />
-          <ListItemIcon edge="end">
-            <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} /> {}
-          </ListItemIcon>
-        </ListItem>
-      ))}
+        {Array.isArray(filteredBeers) && filteredBeers.map(beer => (
+          <ListItem
+            key={beer.id}
+            sx={{
+              justifyContent: 'center',
+              display: 'flex',
+              color: 'white',
+            }}
+            onClick={() => navigate(`/beers/${beer.id}`)}
+          >
+            <ListItemText primary={beer.name} sx={{ textAlign: 'left', color: 'white' }} />
+            <ListItemIcon edge="end">
+              <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
+            </ListItemIcon>
+          </ListItem>
+        ))}
       </List>
 
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
@@ -117,8 +131,8 @@ function BeersIndex() {
               sx={{ width: 32, height: 26 }}
             />
           }/>
-          <BottomNavigationAction onClick={() => navigate('/beers')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
-          <BottomNavigationAction onClick={() => navigate('/beers')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
+          <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
+          <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
         </BottomNavigation>
       </Box>
     </Container>

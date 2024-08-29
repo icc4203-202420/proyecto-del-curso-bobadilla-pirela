@@ -65,29 +65,29 @@ function Home() {
             label="Handle or Email"
             autoComplete="email"
             sx={{
-              backgroundColor: '#D9D9D9', // Color de fondo
-              borderRadius: '8px', // Bordes redondeados
+              backgroundColor: '#D9D9D9',
+              borderRadius: '8px',
               '& .MuiInputBase-input': {
-                color: '#606060', // Color del texto
+                color: '#606060',
               },
               '& .MuiInputLabel-root': {
-                color: '#787878', // Color del label
+                color: '#787878',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: '#787878', // Color del label al enfocar
+                color: '#787878',
               },
               '& .MuiFilledInput-root': {
-                borderRadius: '8px', // Bordes redondeados del fondo
-                backgroundColor: '#D9D9D9', // Color de fondo
+                borderRadius: '8px',
+                backgroundColor: '#D9D9D9',
               },
               '& .MuiFilledInput-root:before': {
-                borderColor: '#303030', // Borde cuando el campo no está enfocado
+                borderColor: '#303030',
               },
               '& .MuiFilledInput-root:hover:before': {
-                borderColor: '#303030', // Borde cuando el campo está en hover
+                borderColor: '#303030',
               },
               '& .MuiFilledInput-root:after': {
-                borderColor: '#303030', // Color del borde al enfocar
+                borderColor: '#303030',
               },
             }}
           />
@@ -113,29 +113,29 @@ function Home() {
                 ),
               }}
               sx={{
-                backgroundColor: '#D9D9D9', // Color de fondo
-                borderRadius: '8px', // Bordes redondeados
+                backgroundColor: '#D9D9D9',
+                borderRadius: '8px',
                 '& .MuiInputBase-input': {
-                  color: '#606060', // Color del texto
+                  color: '#606060',
                 },
                 '& .MuiInputLabel-root': {
-                  color: '#787878', // Color del label
+                  color: '#787878',
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#787878', // Color del label al enfocar
+                  color: '#787878',
                 },
                 '& .MuiFilledInput-root': {
-                  borderRadius: '8px', // Bordes redondeados del fondo
-                  backgroundColor: '#D9D9D9', // Color de fondo
+                  borderRadius: '8px',
+                  backgroundColor: '#D9D9D9',
                 },
                 '& .MuiFilledInput-root:before': {
-                borderColor: '#303030', // Borde cuando el campo no está enfocado
+                borderColor: '#303030',
                 },
                 '& .MuiFilledInput-root:hover:before': {
-                  borderColor: '#303030', // Borde cuando el campo está en hover
+                  borderColor: '#303030',
                 },
                 '& .MuiFilledInput-root:after': {
-                  borderColor: '#303030', // Color del borde al enfocar
+                  borderColor: '#303030',
                 },
               }}
             />
@@ -158,23 +158,23 @@ function Home() {
               sx={{
                 mt: 3,
                 mb: 2,
-                backgroundColor: '#CFB523', // Color de fondo del botón
-                color: 'white', // Color del texto
-                borderRadius: '50px', // Bordes muy redondeados
+                backgroundColor: '#CFB523',
+                color: 'white',
+                borderRadius: '50px',
                 '&:hover': {
-                  backgroundColor: '#b89f3e', // Color de fondo en hover (opcional)
+                  backgroundColor: '#b89f3e',
                 },
-                fontSize: '1.25rem', // Texto más grande
+                fontSize: '1.25rem',
                 '& .MuiButton-startIcon': {
                   mr: 1,
                 },
-                minWidth: '200px', // Menos ancho
+                minWidth: '200px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
             >
-              <AddIcon sx={{ mr: 1 }} /> {/* Ícono de "+" */}
+              <AddIcon sx={{ mr: 1 }} />
               SIGN UP FOR FREE
             </Button>
           </Box>
