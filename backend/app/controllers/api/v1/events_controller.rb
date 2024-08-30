@@ -6,10 +6,17 @@ class API::V1::EventsController < ApplicationController
     before_action :set_event, only: [:show, :update, :destroy]
     before_action :verify_jwt_token, only: [:create, :update, :destroy]
   
-    # GET /api/v1/events
+    # GET /api/v1/bars/:id/events
     def index
-      @events = Event.all
-      render json: { events: @events }, status: :ok
+      @bar = Bar.find_by(id: params[:bar_id])
+        @events = @bar.events
+        render json: {
+          events: @events,
+          bar: {
+            id: @bar.id,
+            name: @bar.name,
+          }
+        }, status: :ok
     end
   
     # GET /api/v1/events/:id
@@ -59,6 +66,7 @@ class API::V1::EventsController < ApplicationController
     private
   
     # Use callbacks to share common setup or constraints between actions.
+
     def set_event
       @event = Event.find_by(id: params[:id])
       render json: { error: 'Event not found' }, status: :not_found unless @event
