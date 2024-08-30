@@ -112,7 +112,22 @@ function BeersIndex() {
             }}
             onClick={() => navigate(`/beers/${beer.id}`)}
           >
-            <ListItemText primary={beer.name} sx={{ textAlign: 'left', color: 'white' }} />
+            <ListItemIcon>
+              {beer.image ? (
+                <Box
+                  component="img"
+                  src={beer.image}
+                  alt={beer.name}
+                  sx={{ width: 50, height: 50, borderRadius: '50%' }}
+                />
+              ) : (
+                <Box
+                  component="div"
+                  sx={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: 'grey' }}
+                />
+              )}
+            </ListItemIcon>
+            <ListItemText primary={beer.name} secondary={beer.style} sx={{ textAlign: 'left', color: 'white', '& .MuiListItemText-secondary': { color: '#FFD700', },}}/>
             <ListItemIcon edge="end">
               <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
             </ListItemIcon>
