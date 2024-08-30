@@ -50,5 +50,4 @@ if Rails.env.development?
       FactoryBot.create(:attendance, user: user, event: event, checked_in: [true, false].sample)
     end
   end
-
 end

@@ -3,7 +3,7 @@ import { Container, Box, TextField, List, ListItem, ListItemText, ListItemIcon, 
 import main_icon from '../assets/icon_beercheers.png';
 import axios from 'axios';
 import { ChevronRight } from '@mui/icons-material';
-import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from '../assets/baricon.png';
 import SearchIcon from '../assets/searchgray.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
@@ -122,7 +122,14 @@ function BarsIndex() {
 
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
         <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
-          <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={<HomeIcon />} sx={{ color: '#CFB523' }} />
+          <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={
+            <Box
+              component="img"
+              src={HomeIcon}
+              alt="Bars"
+              sx={{ width: 72, height: 70 }}
+            />
+          } />
           <BottomNavigationAction onClick={() => navigate('/beers')} label="Search" icon={
             <Box
               component="img"
