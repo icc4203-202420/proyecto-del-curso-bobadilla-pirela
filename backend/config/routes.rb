@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
+      resources :users
       resources :bars do
         resources :events, only: [:index, :show]
       end

@@ -1,5 +1,6 @@
 class API::V1::UsersController < ApplicationController
   include Authenticable
+  before_action :authenticate_user!, only: [:update]
   
   respond_to :json
   before_action :set_user, only: [:show, :update, :friendships]
@@ -15,7 +16,8 @@ class API::V1::UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      render json: @user.id, status: :ok
+      token = @user.generate_jwt
+      render json: { id: @user.id, token: token }, status: :ok
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -29,6 +31,14 @@ class API::V1::UsersController < ApplicationController
       render json: @user.errors, status: :unprocessable_entity
     end
   end
+
+  def friendships
+  
+  end
+
+  #def generate_jwt
+  #  JWT.encode({ sub: id }, Rails.application.credentials.devise_jwt_secret_key, 'HS256')
+  #end
 
   private
 
@@ -44,4 +54,5 @@ class API::V1::UsersController < ApplicationController
               reviews_attributes: [:id, :text, :rating, :beer_id, :_destroy]
             })
   end
+
 end

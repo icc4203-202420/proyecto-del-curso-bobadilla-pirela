@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Box, Typography, Button, AppBar, Toolbar, IconButton } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/Home';
+import SignUp from './components/SignUp';
 import './App.css'
 import BarsIndex from './components/BarsIndex';
 import BeersIndex from './components/BeersIndex';
@@ -16,6 +17,7 @@ function App() {
       <Container>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/beers" element={<BeersIndex />} />
           <Route path="/bars" element={<BarsIndex />} />
           <Route path="/search-users" element={<SearchUsers />} />

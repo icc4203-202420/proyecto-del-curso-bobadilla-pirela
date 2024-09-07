@@ -3,12 +3,15 @@ class API::V1::SessionsController < Devise::SessionsController
   respond_to :json
   private
   def respond_with(current_user, _opts = {})
+    token = encode_token({ sub: resource.id })
     render json: {
       status: { 
         code: 200, message: 'Logged in successfully.',
-        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] }
+        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] },
+        token: token
       }
     }, status: :ok
+
   end
   def respond_to_on_destroy
     if request.headers['Authorization'].present?
@@ -32,5 +35,11 @@ class API::V1::SessionsController < Devise::SessionsController
         message: "Couldn't find an active session."
       }, status: :unauthorized
     end
+  end
+
+  private
+
+  def encode_token(payload)
+    JWT.encode(payload, Rails.application.secrets.secret_key_base)
   end
 end
