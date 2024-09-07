@@ -8,6 +8,7 @@ import BarsIndex from './components/BarsIndex';
 import BeersIndex from './components/BeersIndex';
 import SearchUsers from "./components/SearchUsers";
 import BarsEventsIndex from './components/BarsEventsIndex';
+import BeersDetail from './components/BeersDetail';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/beers" element={<BeersIndex />} />
+          <Route path="/beers/:id" element={<BeersDetail />} />
           <Route path="/bars" element={<BarsIndex />} />
           <Route path="/search-users" element={<SearchUsers />} />
           <Route path="/bars/:id/events" element={<BarsEventsIndex />} />
