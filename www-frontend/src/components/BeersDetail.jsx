@@ -20,7 +20,8 @@ const BeersDetail = () => {
   useEffect(() => {
     axios.get(`http://localhost:3000/api/api/v1/beers/${id}`)
       .then(response => {
-        setBeer(response.data.beer);
+        const beerData = response.data;
+        setBeer(beerData);
         setLoading(false);
       })
       .catch(error => {
@@ -86,7 +87,10 @@ const BeersDetail = () => {
 
             <Grid item xs={6}>
               <Typography variant="body1">
-                <strong>Brand:</strong> {beer.brand_id ? beer.brand_id.name : 'N/A'}
+                <strong>Brand:</strong> {beer.brand ? beer.brand.name : 'N/A'}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Brewery:</strong> {beer.brand && beer.brand.brewery ? beer.brand.brewery.name : 'N/A'}
               </Typography>
               <Typography variant="body1">
                 <strong>Style:</strong> {beer.style}
@@ -102,6 +106,32 @@ const BeersDetail = () => {
               </Typography>
             </Grid>
           </Grid>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box mt={3}>
+            <Typography variant="h6" component="div">
+              <strong>Bars Serving This Beer:</strong>
+            </Typography>
+            {beer.bars && beer.bars.length > 0 ? (
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                {beer.bars.map((bar, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <Card sx={{ padding: 2 }}>
+                      <Typography variant="body1">
+                        <strong>Bar Name:</strong> {bar.name}
+                      </Typography>
+                      <Typography variant="body1">
+                        <strong>Address:</strong> {bar.address ? `${bar.address.street}, ${bar.address.city}, ${bar.address.country.name}` : 'N/A'}
+                      </Typography>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Typography variant="body1">No bars serving this beer.</Typography>
+            )}
+          </Box>
 
           <Divider sx={{ my: 2 }} />
 
