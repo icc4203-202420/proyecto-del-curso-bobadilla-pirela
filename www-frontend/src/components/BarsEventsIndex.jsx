@@ -28,7 +28,7 @@ function BarsEventsIndex() {
   }, [id]);
 
   return (
-    <Container component="main" maxWidth="md">
+    <Container component="main" maxWidth="md" sx={{ mt: 0, pb: 12 }}>
       <Box
         onClick={() => navigate('/bars')}
         sx={{

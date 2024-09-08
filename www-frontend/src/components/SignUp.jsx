@@ -301,22 +301,21 @@ function SignUp() {
                   </FormControl>
                 </Grid>
               </Grid>
-
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
                 sx={{
-                  mt: 3,
-                  mb: 2,
-                  backgroundColor: '#FFA500',
-                  color: '#FFFFFF',
-                  '&:hover': {
-                    backgroundColor: '#FF8C00',
-                  },
+                  mt: 3, mb: 2, backgroundColor: '#CFB523', color: 'white',
+                  borderRadius: '50px',
+                  fontsize: 26,
+                  height: 50,
+                  '&:hover': { backgroundColor: '#b89f3e' },
+                  textAlign: 'center',
                 }}
               >
-                Sign Up
+                <Typography variant="h6" sx={{ color: 'white'}}>
+                  SIGN UP
+                </Typography>
               </Button>
             </Form>
           )}
