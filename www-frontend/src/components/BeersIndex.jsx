@@ -31,9 +31,7 @@ function BeersIndex() {
   );
 
   return (
-    <Container component="main" maxWidth="md">
-      <HomeButton />
-      
+    <Container component="main" maxWidth="md">      
       <Box
         component="img"
         src={main_icon}

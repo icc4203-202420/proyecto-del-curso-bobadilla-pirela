@@ -9,6 +9,7 @@ import BeersIndex from './components/BeersIndex';
 import SearchUsers from "./components/SearchUsers";
 import BarsEventsIndex from './components/BarsEventsIndex';
 import BeersDetail from './components/BeersDetail';
+import Header from './components/Header';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   return (
     <Router>
       <Container>
+      <Header />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUp />} />

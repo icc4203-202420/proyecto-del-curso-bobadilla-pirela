@@ -102,6 +102,17 @@ const BeersDetail = () => {
               </Typography>
             </Grid>
           </Grid>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box mt={3} textAlign="center">
+            <Typography variant="h6" component="div">
+              <strong>Average Rating:</strong>
+            </Typography>
+            <Typography variant="h4" color="primary">
+              {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
+            </Typography>
+          </Box>
         </Card>
       </Grid>
     </Grid>
