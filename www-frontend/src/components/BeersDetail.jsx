@@ -8,6 +8,7 @@ import HomeIcon from '../assets/baricon_gray.png';
 import SearchIcon from '../assets/searchyellow.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
+import { Button } from '@mui/material';
 
 const BeersDetail = () => {
   const { id } = useParams();
@@ -41,7 +42,7 @@ const BeersDetail = () => {
   }
 
   return (
-    <Container component="main" maxWidth="md"> 
+    <Container component="main" maxWidth="md" sx={{ paddingBottom: 10 }}> {/* Añade padding inferior */}
       <Box
         onClick={() => navigate('/beers')}
         sx={{
@@ -151,21 +152,37 @@ const BeersDetail = () => {
             )}
           </Box>
 
-            <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2 }} />
 
-            <Box mt={3} textAlign="center">
-              <Typography variant="h6" component="div">
-                <strong>Average Rating:</strong>
-              </Typography>
-              <Typography variant="h4" color="primary">
-                {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
-              </Typography>
-            </Box>
-          </Card>
-        </Grid>
+          <Box mt={3} textAlign="center">
+            <Typography variant="h6" component="div">
+              <strong>Average Rating:</strong>
+            </Typography>
+            <Typography variant="h4" color="primary">
+              {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
+            </Typography>
+          </Box>
+        </Card>
       </Grid>
+    </Grid>
 
-      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
+    <Box mt={3} textAlign="center" sx={{ mb: 8 }}> {/* Añade margen inferior */}
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: '#CFB523', // Color amarillo
+          color: 'white', // Letras blancas
+          '&:hover': {
+            backgroundColor: '#bfa11e', // Un color ligeramente más oscuro para el hover
+          }
+        }}
+        onClick={() => navigate(`/beers/${id}/review`)}
+      >
+        Write a Review
+      </Button>
+    </Box>
+
+    <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
       <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
         <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={
           <Box
@@ -186,8 +203,8 @@ const BeersDetail = () => {
         <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
         <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
       </BottomNavigation>
-      </Box>
-    </Container>
+    </Box>
+  </Container>
   );
 };
 

@@ -49,6 +49,11 @@ class API::V1::ReviewsController < ApplicationController
     @user = User.find(params[:user_id]) 
   end
 
+  def set_beer
+    @beer = Beer.find(params[:beer_id])
+    render json: { error: "Beer not found" }, status: :not_found unless @beer
+  end
+
   def review_params
     params.require(:review).permit(:id, :text, :rating, :beer_id)
   end

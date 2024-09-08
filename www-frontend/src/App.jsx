@@ -10,6 +10,7 @@ import SearchUsers from "./components/SearchUsers";
 import BarsEventsIndex from './components/BarsEventsIndex';
 import BeersDetail from './components/BeersDetail';
 import Header from './components/Header';
+import BeersReview from './components/BeersReview';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/bars" element={<BarsIndex />} />
           <Route path="/search-users" element={<SearchUsers />} />
           <Route path="/bars/:id/events" element={<BarsEventsIndex />} />
+          <Route path="/beers/:id/review" element={<BeersReview />} />
         </Routes>
       </Container>
     </Router>
