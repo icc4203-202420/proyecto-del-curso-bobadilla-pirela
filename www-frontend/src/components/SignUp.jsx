@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, TextField, Button, Box, Typography, Grid, IconButton, InputAdornment, FormControl } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, TextField, Button, Box, MenuItem, Typography, Grid, IconButton, InputAdornment, FormControl } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import main_icon from '../assets/icon_beercheers.png';
@@ -14,10 +14,11 @@ function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const [countries, setCountries] = useState([]);
 
   const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required('First Name is required'),
-    last_name: Yup.string().required('Last Name is required'),
+    first_name: Yup.string().required('First Name is required').min(2, 'First name has to have at least 2 characters'),
+    last_name: Yup.string().required('Last Name is required').min(2, 'Last name has to have at least 2 characters'),
     email: Yup.string().email('Invalid email format').required('Email is required'),
     age: Yup.number().required('Age is required').min(18, 'You must be at least 18 years old'),
     handle: Yup.string().required('Handle is required'),
@@ -29,25 +30,45 @@ function SignUp() {
       line1: Yup.string(),
       line2: Yup.string(),
       city: Yup.string(),
-      country: Yup.string().required('Country is required'),
+      country_id: Yup.string().required('Country is required')
     }),
   });
 
   const handleSubmit = async (values) => {
     try {
       const response = await axios.post('/api/api/v1/signup', {
-        user: values,
+        user: {
+          first_name: values.first_name,
+          last_name: values.last_name,
+          email: values.email,
+          handle: values.handle,
+          password: values.password,
+          password_confirmation: values.password_confirmation,
+        },
       });
 
       if (response.status === 200) {
-        navigate('/bars');
+        navigate('/');
       } else {
         console.error('Error creating user:', response.data);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error:', error.response ? error.response.data : error.message);
     }
   };
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await axios.get('api/api/v1/countries');
+        setCountries(response.data);
+      } catch (error) {
+        console.error('Error fetching countries:', error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const textFieldStyle = {
     backgroundColor: '#D9D9D9',
@@ -102,7 +123,7 @@ function SignUp() {
               line1: '',
               line2: '',
               city: '',
-              country: '',
+              country_id: '',
             },
           }}
           validationSchema={validationSchema}
@@ -176,7 +197,6 @@ function SignUp() {
                     as={TextField}
                     label="Age"
                     name="age"
-                    required
                     fullWidth
                     variant="filled"
                     value={values.age}
@@ -239,14 +259,24 @@ function SignUp() {
                   <Field
                     as={TextField}
                     label="Country"
-                    name="address_attributes.country"
+                    name="address_attributes.country_id"
                     fullWidth
+                    required
                     variant="filled"
-                    value={values.address_attributes.country}
+                    select
                     onChange={handleChange}
                     sx={textFieldStyle}
-                    helperText={<ErrorMessage name="address_attributes.country" component="span" />}
-                  />
+                    helperText={<ErrorMessage name="address_attributes.country_id" component="span" />}
+                  >
+                    <MenuItem value="">
+                      <em>Select a country</em>
+                    </MenuItem>
+                    {countries.length > 0 && countries.map((country) => (
+                      <MenuItem key={country.id} value={country.id}>
+                        {country.name}
+                      </MenuItem>
+                    ))}
+                  </Field>
                 </Grid>
 
                 <Grid item xs={12}>

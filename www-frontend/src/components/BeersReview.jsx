@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import { Container, TextField, Button, Box, Typography, Grid } from '@mui/material';
+import { Container, Box, Typography, Button, Grid, Slider, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
 
 const reviewSchema = Yup.object().shape({
   rating: Yup.number()
@@ -21,16 +21,21 @@ const BeersReview = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
+      const token = localStorage.getItem('token'); 
       await axios.post(`http://localhost:3000/api/api/v1/beers/${id}/reviews`, {
         review: {
           rating: values.rating,
           text: values.text,
         }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       resetForm();
       navigate(`/beers/${id}`);
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error('Error submitting review:', error.response ? error.response.data : error.message);
     }
     setSubmitting(false);
   };
@@ -43,32 +48,36 @@ const BeersReview = () => {
         </Typography>
 
         <Formik
-          initialValues={{ rating: '', text: '' }}
+          initialValues={{ rating: 1, text: '' }}
           validationSchema={reviewSchema}
           onSubmit={handleSubmit}
         >
-          {({ isSubmitting, handleChange, handleBlur, values, errors, touched }) => (
+          {({ isSubmitting, values, errors, touched, setFieldValue, handleBlur }) => (
             <Form>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    id="rating"
-                    name="rating"
-                    label="Puntaje (1-5)"
-                    type="number"
-                    value={values.rating}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.rating && Boolean(errors.rating)}
-                    helperText={touched.rating && errors.rating}
-                    sx={{
-                      backgroundColor: 'white',
-                      borderRadius: '8px',
-                      '& .MuiInputLabel-root': { color: '#606060' },
-                      '& .MuiInputBase-input': { color: '#303030' },
-                    }}
-                  />
+                  <FormControl fullWidth>
+                    <FormLabel color="white">Puntaje (1-5)</FormLabel>
+                    <Slider
+                      value={values.rating}
+                      min={1}
+                      max={5}
+                      step={1}
+                      onChange={(e, value) => setFieldValue('rating', value)}
+                      onBlur={handleBlur}
+                      valueLabelDisplay="auto"
+                      valueLabelFormat={(value) => `${value}`}
+                      sx={{
+                        color: '#CFB523',
+                        '& .MuiSlider-thumb': { backgroundColor: '#CFB523' },
+                        '& .MuiSlider-track': { backgroundColor: '#CFB523' },
+                        '& .MuiSlider-rail': { backgroundColor: '#D9D9D9' },
+                      }}
+                    />
+                    {touched.rating && errors.rating && (
+                      <FormHelperText error>{errors.rating}</FormHelperText>
+                    )}
+                  </FormControl>
                 </Grid>
 
                 <Grid item xs={12}>
@@ -77,18 +86,22 @@ const BeersReview = () => {
                     id="text"
                     name="text"
                     label="Reseña"
+                    variant="filled"
                     multiline
                     rows={4}
                     value={values.text}
-                    onChange={handleChange}
+                    onChange={(e) => setFieldValue('text', e.target.value)}
                     onBlur={handleBlur}
                     error={touched.text && Boolean(errors.text)}
                     helperText={touched.text && errors.text}
                     sx={{
-                      backgroundColor: 'white',
+                      backgroundColor: '#D9D9D9',
                       borderRadius: '8px',
                       '& .MuiInputLabel-root': { color: '#606060' },
                       '& .MuiInputBase-input': { color: '#303030' },
+                      '& .MuiFilledInput-root:before': { borderColor: '#303030' },
+                      '& .MuiFilledInput-root:hover:before': { borderColor: '#303030' },
+                      '& .MuiFilledInput-root:after': { borderColor: '#303030' },
                     }}
                   />
                 </Grid>
