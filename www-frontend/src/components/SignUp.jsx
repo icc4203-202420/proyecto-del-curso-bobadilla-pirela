@@ -5,101 +5,51 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import main_icon from '../assets/icon_beercheers.png';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
-import AddIcon from '@mui/icons-material/Add';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
 
 function SignUp() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    age: '',
-    handle: '',
-    password: '',
-    password_confirmation: '',
-    address_attributes: {
-      line1: '',
-      line2: '',
-      city: '',
-      country: '',
-    },
-  });
   const [showPassword, setShowPassword] = useState(false);
-
-	const handleChange = (e) => {
-		const { name, value } = e.target;
-		if (name.startsWith("address_attributes.")) {
-			setFormData({
-				...formData,
-				address_attributes: {
-					...formData.address_attributes,
-					[name.split(".")[1]]: value
-				}
-			});
-		} else {
-			setFormData({ ...formData, [name]: value });
-		}
-	};
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		if (formData.password !== formData.password_confirmation) {
-			alert("Passwords don't match");
-			return;
-		}
-	
-		try {
-			const response = await fetch('api//api/v1/signup', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ user: { 
-					first_name: formData.first_name,
-					last_name: formData.last_name,
-					email: formData.email,
-					handle: formData.handle,
-					password: formData.password,
-					password_confirmation: formData.password_confirmation
-				} }),
-			});
-	
-			if (response.ok) {
-				navigate('/');
-				/*const userData = await response.json();
-				console.log("User Data:", userData);
-				const userId = userData.data.id;
-				
-				const updateResponse = await fetch(`api//api/v1/users/${userId}`, {
-					method: 'PUT',
-					headers: { 
-						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${userData.token}`
-					},
-					body: JSON.stringify({ 
-						user: {
-							age: formData.age,
-							address_attributes: formData.address_attributes
-						} 
-					}),
-				});
-	
-				if (updateResponse.ok) {
-					navigate('/');
-				} else {
-					const errorData = await updateResponse.json();
-					console.error("Error updating user:", errorData);
-				}*/
-			} else {
-				const errorData = await response.json();
-				console.error("Error creating user:", errorData);
-			}
-		} catch (error) {
-			console.error("Error:", error);
-		}
-	};
+  const validationSchema = Yup.object().shape({
+    first_name: Yup.string().required('First Name is required'),
+    last_name: Yup.string().required('Last Name is required'),
+    email: Yup.string().email('Invalid email format').required('Email is required'),
+    age: Yup.number().required('Age is required').min(18, 'You must be at least 18 years old'),
+    handle: Yup.string().required('Handle is required'),
+    password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
+    password_confirmation: Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Passwords must match')
+      .required('Confirm Password is required'),
+    address_attributes: Yup.object().shape({
+      line1: Yup.string(),
+      line2: Yup.string(),
+      city: Yup.string(),
+      country: Yup.string().required('Country is required'),
+    }),
+  });
 
-	const textFieldStyle = {
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.post('/api/api/v1/signup', {
+        user: values,
+      });
+
+      if (response.status === 200) {
+        navigate('/bars');
+      } else {
+        console.error('Error creating user:', response.data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const textFieldStyle = {
     backgroundColor: '#D9D9D9',
     borderRadius: '8px',
     '& .MuiInputBase-input': {
@@ -126,10 +76,9 @@ function SignUp() {
     },
   };
 
-	
   return (
     <Container component="main" maxWidth="xs">
-			<Box
+      <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -138,149 +87,241 @@ function SignUp() {
           position: 'relative',
         }}
       >
-				<Box
-					component="img"
-					src={main_icon}
-					alt="Icon"
-					sx={{ width: 100, height: 'auto', marginBottom: 1 }}
-				/>
+        <Box component="img" src={main_icon} alt="Icon" sx={{ width: 100, height: 'auto', marginBottom: 1 }} />
 
-				<Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
-					<IconButton
-						onClick={() => navigate('/')}
-						sx={{
-							position: 'absolute',
-							top: 0,
-							right: 0,
-							margin: 1,
-							color: 'white'
-						}}
-					>
-						<CloseIcon />
-					</IconButton>
-					
-					<Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 1 }}>
-						<Typography variant="body2" sx={{ color: 'white', textAlign: 'center', mt: 1 }}>
-							About you
-						</Typography>
-					</Box>
-					<Grid container spacing={2}>
-						<Grid item xs={6}>
-							<TextField label="First Name" name="first_name" required fullWidth variant="filled" value={formData.first_name} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={6}>
-							<TextField label="Last Name" name="last_name" required fullWidth variant="filled" value={formData.last_name} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={12}>
-							<TextField label="Email" name="email" required fullWidth variant="filled" value={formData.email} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={4}>
-							<TextField label="Age" name="age" required fullWidth variant="filled" value={formData.age} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={8}>
-							<TextField label="Handle" name="handle" required fullWidth variant="filled" value={formData.handle} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={12}>
-							<TextField label="Line 1 (Optional)" name="address_attributes.line1" fullWidth variant="filled" value={formData.address_attributes.line1} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={12}>
-							<TextField label="Line 2 (Optional)" name="address_attributes.line2" fullWidth variant="filled" value={formData.address_attributes.line2} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={6}>
-							<TextField label="City (Optional)" name="address_attributes.city" fullWidth variant="filled" value={formData.address_attributes.city} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						<Grid item xs={6}>
-							<TextField label="Country" name="address_attributes.country" fullWidth variant="filled" value={formData.address_attributes.country} onChange={handleChange} sx={textFieldStyle} />
-						</Grid>
-						
-						<Grid item xs={12} md={6}>
+        <Formik
+          initialValues={{
+            first_name: '',
+            last_name: '',
+            email: '',
+            age: '',
+            handle: '',
+            password: '',
+            password_confirmation: '',
+            address_attributes: {
+              line1: '',
+              line2: '',
+              city: '',
+              country: '',
+            },
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, handleChange }) => (
+            <Form noValidate>
+              <IconButton
+                onClick={() => navigate('/')}
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  margin: 1,
+                  color: 'white',
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
 
-							<Grid container spacing={2}>
-								<Grid item xs={12}>
-									<Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 1 }}>
-										<Typography variant="body2" sx={{ color: 'white', textAlign: 'center'}}>
-											Enter your password
-										</Typography>
-									</Box>
-									<FormControl fullWidth variant="filled">
-										<TextField
-											label="Password"
-											name="password"
-											variant="filled"
-											required
-											type={showPassword ? 'text' : 'password'}
-											value={formData.password}
-											onChange={handleChange} sx={textFieldStyle}
-											InputProps={{
-												endAdornment: (
-													<InputAdornment position="end">
-														<IconButton onClick={handleClickShowPassword}>
-															{showPassword ? <VisibilityOff /> : <Visibility />}
-														</IconButton>
-													</InputAdornment>
-												),
-											}}
-										/>
-									</FormControl>
-								</Grid>
-							</Grid>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 1 }}>
+                <Typography variant="body2" sx={{ color: 'white', textAlign: 'center', mt: 1 }}>
+                  About you
+                </Typography>
+              </Box>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="First Name"
+                    name="first_name"
+                    required
+                    fullWidth
+                    variant="filled"
+                    value={values.first_name}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="first_name" component="span" />}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="Last Name"
+                    name="last_name"
+                    required
+                    fullWidth
+                    variant="filled"
+                    value={values.last_name}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="last_name" component="span" />}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    label="Email"
+                    name="email"
+                    required
+                    fullWidth
+                    variant="filled"
+                    value={values.email}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="email" component="span" />}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Field
+                    as={TextField}
+                    label="Age"
+                    name="age"
+                    required
+                    fullWidth
+                    variant="filled"
+                    value={values.age}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="age" component="span" />}
+                  />
+                </Grid>
+                <Grid item xs={8}>
+                  <Field
+                    as={TextField}
+                    label="Handle"
+                    name="handle"
+                    required
+                    fullWidth
+                    variant="filled"
+                    value={values.handle}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="handle" component="span" />}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    label="Line 1 (Optional)"
+                    name="address_attributes.line1"
+                    fullWidth
+                    variant="filled"
+                    value={values.address_attributes.line1}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    label="Line 2 (Optional)"
+                    name="address_attributes.line2"
+                    fullWidth
+                    variant="filled"
+                    value={values.address_attributes.line2}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="City (Optional)"
+                    name="address_attributes.city"
+                    fullWidth
+                    variant="filled"
+                    value={values.address_attributes.city}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="Country"
+                    name="address_attributes.country"
+                    fullWidth
+                    variant="filled"
+                    value={values.address_attributes.country}
+                    onChange={handleChange}
+                    sx={textFieldStyle}
+                    helperText={<ErrorMessage name="address_attributes.country" component="span" />}
+                  />
+                </Grid>
 
-							<Grid container spacing={2} mt={2}>
-								<Grid item xs={12}>
-									<TextField
-										label="Confirm Password"
-										name="password_confirmation"
-										required
-										fullWidth
-										variant="filled"
-										type={showPassword ? 'text' : 'password'}
-										value={formData.password_confirmation}
-										onChange={handleChange} sx={textFieldStyle}
-										InputProps={{
-											endAdornment: (
-												<InputAdornment position="end">
-													<IconButton onClick={handleClickShowPassword}>
-														{showPassword ? <VisibilityOff /> : <Visibility />}
-													</IconButton>
-												</InputAdornment>
-											),
-										}}
-									/>
-								</Grid>
-							</Grid>
-						</Grid>
+                <Grid item xs={12}>
+                  <FormControl fullWidth variant="filled">
+                    <Field
+                      as={TextField}
+                      label="Password"
+                      name="password"
+                      variant="filled"
+                      required
+                      type={showPassword ? 'text' : 'password'}
+                      value={values.password}
+                      onChange={handleChange}
+                      sx={textFieldStyle}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={handleClickShowPassword}>
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      helperText={<ErrorMessage name="password" component="span" />}
+                    />
+                  </FormControl>
+                </Grid>
 
-						<Grid item xs={10} md={6}>
-							<Button
-								type="submit"
-								variant="contained"
-								sx={{
-									mt: 3,
-									mb: 2,
-									backgroundColor: '#CFB523',
-									color: 'white',
-									borderRadius: '75px',
-									'&:hover': {
-										backgroundColor: '#b89f3e',
-									},
-									fontSize: '1.25rem',
-									'& .MuiButton-startIcon': {
-										mr: 1,
-									},
-									minWidth: '200px',
-									minHeight: '125px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center'
-								}}
-							>
-								<AddIcon sx={{ mr: 1 }} />
-								Create
-							</Button>
-						</Grid>
-					</Grid>
-				</Box>
-			</Box>
+                <Grid item xs={12}>
+                  <FormControl fullWidth variant="filled">
+                    <Field
+                      as={TextField}
+                      label="Confirm Password"
+                      name="password_confirmation"
+                      variant="filled"
+                      required
+                      type={showPassword ? 'text' : 'password'}
+                      value={values.password_confirmation}
+                      onChange={handleChange}
+                      sx={textFieldStyle}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={handleClickShowPassword}>
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      helperText={<ErrorMessage name="password_confirmation" component="span" />}
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  backgroundColor: '#FFA500',
+                  color: '#FFFFFF',
+                  '&:hover': {
+                    backgroundColor: '#FF8C00',
+                  },
+                }}
+              >
+                Sign Up
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </Box>
     </Container>
   );
 }

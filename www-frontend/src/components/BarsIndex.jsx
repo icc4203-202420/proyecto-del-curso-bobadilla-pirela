@@ -1,3 +1,4 @@
+// src/components/BarsIndex.js
 import React, { useEffect, useState } from 'react';
 import { Container, Box, TextField, List, ListItem, ListItemText, ListItemIcon, Typography, BottomNavigation, BottomNavigationAction, Button } from '@mui/material';
 import main_icon from '../assets/icon_beercheers.png';
@@ -8,7 +9,7 @@ import SearchIcon from '../assets/searchgray.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
-import HomeButton from './HomeButton';
+import Header from './Header';
 
 function BarsIndex() {
   const [bars, setBars] = useState([]);
@@ -18,7 +19,6 @@ function BarsIndex() {
   useEffect(() => {
     axios.get('http://localhost:3000/api/api/v1/bars')
       .then(response => {
-        console.log(response.data);
         setBars(response.data.bars || []);
       })
       .catch(error => {
@@ -32,8 +32,6 @@ function BarsIndex() {
 
   return (
     <Container component="main" maxWidth="md">
-      <HomeButton />
-
       <Box
         component="img"
         src={main_icon}
