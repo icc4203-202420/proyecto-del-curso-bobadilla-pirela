@@ -7,8 +7,7 @@ import HomeIcon from '../assets/baricon.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '../assets/searchgray.png';
-import HomeButton from './HomeButton';
-import { ChevronRight } from '@mui/icons-material';
+import { ChevronRight ,ChevronLeft } from '@mui/icons-material';
 
 function BarsEventsIndex() {
   const { id } = useParams();
@@ -30,7 +29,17 @@ function BarsEventsIndex() {
 
   return (
     <Container component="main" maxWidth="md">
-      <HomeButton />
+      <Box
+        onClick={() => navigate('/bars')}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          mb: 1,
+        }}
+      >
+        <ChevronLeft sx={{ color: 'white' }} />
+      </Box>
 
       <Box
         component="img"

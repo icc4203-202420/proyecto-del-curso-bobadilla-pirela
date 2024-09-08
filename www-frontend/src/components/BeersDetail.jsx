@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Grid,
-  CircularProgress,
-  Box,
-  Divider
-} from '@mui/material';
+import { Container, Card, BottomNavigation, BottomNavigationAction, CardMedia, Typography, Grid, CircularProgress, Box, Divider } from '@mui/material';
+import main_icon from '../assets/icon_beercheers.png';
+import { ChevronLeft } from '@mui/icons-material';
+import HomeIcon from '../assets/baricon_gray.png';
+import SearchIcon from '../assets/searchyellow.png';
+import MapIcon from '@mui/icons-material/Place';
+import PersonIcon from '@mui/icons-material/Person';
 
 const BeersDetail = () => {
   const { id } = useParams();
   const [beer, setBeer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`http://localhost:3000/api/api/v1/beers/${id}`)
@@ -42,80 +40,124 @@ const BeersDetail = () => {
   }
 
   return (
-    <Grid container justifyContent="center" sx={{ mt: 4 }}>
-      <Grid item xs={12} md={8}>
-        <Card sx={{ padding: 4 }}>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item xs={8}>
-              <Typography variant="h4" component="div" align="center" gutterBottom>
-                {beer.name}
-              </Typography>
+    <Container component="main" maxWidth="md"> 
+      <Box
+        onClick={() => navigate('/beers')}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          mb: 1,
+        }}
+      >
+        <ChevronLeft sx={{ color: 'white' }} />
+      </Box>
+
+      <Box
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 1 }}
+      />
+
+      <Grid container justifyContent="center" sx={{ mt: 4 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ padding: 4 }}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item xs={8}>
+                <Typography variant="h4" component="div" align="center" gutterBottom>
+                  {beer.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                {beer.image_url && (
+                  <CardMedia
+                    component="img"
+                    height="150"
+                    image={beer.image_url}
+                    alt={beer.name}
+                  />
+                )}
+              </Grid>
             </Grid>
-            <Grid item xs={4}>
-              {beer.image_url && (
-                <CardMedia
-                  component="img"
-                  height="150"
-                  image={beer.image_url}
-                  alt={beer.name}
-                />
-              )}
+
+            <Divider sx={{ my: 2 }} />
+
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="body1">
+                  <strong>Type:</strong> {beer.beer_type}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Name:</strong> {beer.name}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Hop:</strong> {beer.hop}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Malts:</strong> {beer.malts}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Alcohol:</strong> {beer.alcohol}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Typography variant="body1">
+                  <strong>Brand:</strong> {beer.brand_id ? beer.brand_id.name : 'N/A'}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Style:</strong> {beer.style}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Yeast:</strong> {beer.yeast}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>IBU:</strong> {beer.ibu}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>BLG:</strong> {beer.blg}
+                </Typography>
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 2 }} />
 
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Typography variant="body1">
-                <strong>Type:</strong> {beer.beer_type}
+            <Box mt={3} textAlign="center">
+              <Typography variant="h6" component="div">
+                <strong>Average Rating:</strong>
               </Typography>
-              <Typography variant="body1">
-                <strong>Name:</strong> {beer.name}
+              <Typography variant="h4" color="primary">
+                {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
               </Typography>
-              <Typography variant="body1">
-                <strong>Hop:</strong> {beer.hop}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Malts:</strong> {beer.malts}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Alcohol:</strong> {beer.alcohol}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="body1">
-                <strong>Brand:</strong> {beer.brand_id ? beer.brand_id.name : 'N/A'}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Style:</strong> {beer.style}
-              </Typography>
-              <Typography variant="body1">
-                <strong>Yeast:</strong> {beer.yeast}
-              </Typography>
-              <Typography variant="body1">
-                <strong>IBU:</strong> {beer.ibu}
-              </Typography>
-              <Typography variant="body1">
-                <strong>BLG:</strong> {beer.blg}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Box mt={3} textAlign="center">
-            <Typography variant="h6" component="div">
-              <strong>Average Rating:</strong>
-            </Typography>
-            <Typography variant="h4" color="primary">
-              {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
-            </Typography>
-          </Box>
-        </Card>
+            </Box>
+          </Card>
+        </Grid>
       </Grid>
-    </Grid>
+
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
+      <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
+        <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={
+          <Box
+            component="img"
+            src={HomeIcon}
+            alt="Bars"
+            sx={{ width: 72, height: 70 }}
+          />
+        } />
+        <BottomNavigationAction onClick={() => navigate('/beers')} label="Search" icon={
+          <Box
+            component="img"
+            src={SearchIcon}
+            alt="Search"
+            sx={{ width: 32, height: 26 }}
+          />
+        }/>
+        <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
+        <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
+      </BottomNavigation>
+      </Box>
+    </Container>
   );
 };
 

@@ -8,7 +8,6 @@ import SearchIcon from '../assets/searchyellow.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate } from 'react-router-dom';
-import HomeButton from './HomeButton';
 
 function BeersIndex() {
   const [beers, setBeers] = useState([]);
@@ -31,7 +30,7 @@ function BeersIndex() {
   );
 
   return (
-    <Container component="main" maxWidth="md">      
+    <Container component="main" maxWidth="md">
       <Box
         component="img"
         src={main_icon}
@@ -66,7 +65,6 @@ function BeersIndex() {
         <TextField
           id="filled-basic"
           variant="filled"
-          fullWidth
           label="Name"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -105,7 +103,7 @@ function BeersIndex() {
             key={beer.id}
             sx={{
               justifyContent: 'center',
-              display: 'flex',
+              display: 'flex-start',
               color: 'white',
             }}
             onClick={() => navigate(`/beers/${beer.id}`)}
@@ -126,8 +124,8 @@ function BeersIndex() {
               )}
             </ListItemIcon>
             <ListItemText primary={beer.name} secondary={beer.style} sx={{ textAlign: 'left', color: 'white', '& .MuiListItemText-secondary': { color: '#FFD700', },}}/>
-            <ListItemIcon edge="end">
-              <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
+            <ListItemIcon edge="center">
+              <ChevronRight sx={{ color: 'white'}} />
             </ListItemIcon>
           </ListItem>
         ))}

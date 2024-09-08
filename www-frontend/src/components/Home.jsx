@@ -98,6 +98,7 @@ function Home() {
                 name="password"
                 variant="filled"
                 required
+                fullWidth
                 type={showPassword ? 'text' : 'password'}
                 label="Password"
                 error={touched.password && Boolean(errors.password)}
@@ -120,6 +121,10 @@ function Home() {
                   borderRadius: '8px',
                   mt: 2,
                   '& .MuiInputBase-input': { color: '#606060' },
+                  '& .MuiInputLabel-root': { color: '#787878' },
+                  '& .MuiFilledInput-root:before': { borderColor: '#303030' },
+                  '& .MuiFilledInput-root:hover:before': { borderColor: '#303030' },
+                  '& .MuiFilledInput-root:after': { borderColor: '#303030' },
                 }}
               />
 
@@ -128,20 +133,23 @@ function Home() {
                   Forgot password?
                 </Link>
               </Box>
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 3, mb: 2, backgroundColor: '#CFB523', color: 'white',
-                  borderRadius: '50px',
-                  '&:hover': { backgroundColor: '#b89f3e' },
-                }}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Enviando...' : 'Iniciar Sesión'}
-              </Button>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    mt: 3, mb: 2, backgroundColor: '#CFB523', color: 'white',
+                    width: 175,
+                    fontSize: 26,
+                    borderRadius: '50px',
+                    '&:hover': { backgroundColor: '#b89f3e' },
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'LOG IN'}
+                </Button>
+              </Box>
 
               {serverError && (
                 <Typography color="error" variant="body2" align="center" sx={{ mt: 2 }}>
@@ -156,16 +164,20 @@ function Home() {
               <Button
                 type="button"
                 onClick={() => navigate('/signup')}
-                fullWidth
                 variant="contained"
                 sx={{
                   mt: 3, mb: 2, backgroundColor: '#CFB523', color: 'white',
                   borderRadius: '50px',
+                  fontsize: 26,
+                  height: 50,
                   '&:hover': { backgroundColor: '#b89f3e' },
+                  textAlign: 'center',
                 }}
               >
                 <AddIcon sx={{ mr: 1 }} />
-                SIGN UP FOR FREE
+                <Typography variant="h6" sx={{ color: 'white'}}>
+                  SIGN UP FOR FREE
+                </Typography>
               </Button>
             </Form>
           )}
