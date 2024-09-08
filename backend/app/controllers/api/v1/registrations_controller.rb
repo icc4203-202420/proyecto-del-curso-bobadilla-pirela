@@ -12,9 +12,11 @@ class API::V1::RegistrationsController < Devise::RegistrationsController
 
   def respond_with(current_user, _opts = {})
     if resource.persisted?
+      #token = resource.generate_jwt
       render json: {
         status: {code: 200, message: 'Signed up successfully.'},
         data: UserSerializer.new(current_user).serializable_hash[:data][:attributes]
+        #token: token
       }, status: :ok
     else
       render json: {

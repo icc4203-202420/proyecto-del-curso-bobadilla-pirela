@@ -36,6 +36,10 @@ class API::V1::UsersController < ApplicationController
   
   end
 
+  #def generate_jwt
+  #  JWT.encode({ sub: id }, Rails.application.credentials.devise_jwt_secret_key, 'HS256')
+  #end
+
   private
 
   def set_user

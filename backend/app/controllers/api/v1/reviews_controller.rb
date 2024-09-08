@@ -2,6 +2,7 @@ class API::V1::ReviewsController < ApplicationController
   respond_to :json
   before_action :set_user, only: [:index, :create]
   before_action :set_review, only: [:show, :update, :destroy]
+  before_action :authenticate_user_from_token!
 
   def index
     @reviews = Review.where(user: @user)
@@ -17,11 +18,16 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def create
-    @review = @user.reviews.build(review_params)
-    if @review.save
-      render json: @review, status: :created, location: api_v1_review_url(@review)
+    if current_user
+      review = current_user.reviews.new(review_params.merge(beer_id: params[:beer_id]))
+
+      if review.save
+        render json: { status: 200, message: 'Review created successfully.', review: review }, status: :ok
+      else
+        render json: { error: 'Failed to create review.' }, status: :unprocessable_entity
+      end
     else
-      render json: @review.errors, status: :unprocessable_entity
+      render json: { error: 'Unauthorized' }, status: :unauthorized
     end
   end
 
@@ -45,8 +51,12 @@ class API::V1::ReviewsController < ApplicationController
     render json: { error: "Review not found" }, status: :not_found unless @review
   end
 
+  def current_user
+    @current_user
+  end
+  
   def set_user
-    @user = User.find(params[:user_id]) 
+    @user = current_user
   end
 
   def set_beer
@@ -55,6 +65,20 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def review_params
-    params.require(:review).permit(:id, :text, :rating, :beer_id)
+    params.require(:review).permit(:rating, :text)
   end
+
+  def authenticate_user_from_token!
+    token = request.headers['Authorization']&.split(' ')&.last
+    return head :unauthorized unless token
+
+    begin
+      decoded_token = JWT.decode(token, Rails.application.credentials.devise_jwt_secret_key, true, algorithm: 'HS256')
+      payload = decoded_token.first
+      @current_user = User.find(payload['sub'])
+    rescue JWT::DecodeError, JWT::ExpiredSignature
+      head :unauthorized
+    end
+  end
+
 end
