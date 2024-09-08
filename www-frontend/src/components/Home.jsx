@@ -47,7 +47,7 @@ function Home() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.status.token);
-        //console.log('Token guardado:', data.status.token);
+        console.log('Token guardado:', data.status.token);
         navigate('/bars');
       } else {
         const errorData = await response.json();

@@ -40,6 +40,6 @@ class API::V1::SessionsController < Devise::SessionsController
   private
 
   def encode_token(payload)
-    JWT.encode(payload, Rails.application.secrets.secret_key_base)
+    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key, 'HS256')
   end
 end
