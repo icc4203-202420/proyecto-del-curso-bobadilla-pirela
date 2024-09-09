@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import { Container, Box, Typography, Button, Grid, Slider, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
+import { Container, Box, Typography, Button, BottomNavigation, BottomNavigationAction, Grid, Slider, FormControl, FormLabel, FormHelperText, TextField } from '@mui/material';
+import { ChevronLeft } from '@mui/icons-material';
+import main_icon from '../assets/icon_beercheers.png';
+import HomeIcon from '../assets/baricon_gray.png';
+import SearchIcon from '../assets/searchyellow.png';
+import MapIcon from '@mui/icons-material/Place';
+import PersonIcon from '@mui/icons-material/Person';
 
 const reviewSchema = Yup.object().shape({
   rating: Yup.number()
@@ -18,6 +24,7 @@ const reviewSchema = Yup.object().shape({
 const BeersReview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [beerName, setBeerName] = useState("");
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
@@ -40,11 +47,63 @@ const BeersReview = () => {
     setSubmitting(false);
   };
 
+  useEffect(() => {
+    axios.get(`http://localhost:3000/api/api/v1/beers/${id}`)
+      .then(response => {
+        console.log(response.data);
+        setBeerName(response.data.name || "");
+      })
+      .catch(error => {
+        console.error("No se pudo obtener el nombre del beer!", error);
+      });
+  }, [id]);
+
   return (
     <Container component="main" maxWidth="sm">
+      <Box
+        onClick={() => navigate(`/beers/${id}`)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          mb: 1,
+        }}
+      >
+        <ChevronLeft sx={{ color: 'white' }} />
+      </Box>
+
+      <Box
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 1 }}
+      />
+
+      <Typography variant="h4"
+        component="h1"
+        sx={{
+          color: 'white',
+          textAlign: 'center',
+          mt: 2,
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 900,
+          fontSize: '50px',
+          textShadow: '1px 3px 3px black',
+          WebkitTextStroke: '1px black',
+          MozTextStroke: '1px black',
+        }}
+      > 
+        {beerName}
+      </Typography>
+
       <Box sx={{ mt: 4, bgcolor: '#303030', p: 3, borderRadius: 3 }}>
-        <Typography variant="h4" align="center" color="white" gutterBottom>
-          Escribe una Reseña
+        <Typography variant="h4"
+          sx={{
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          Write your opinion!
         </Typography>
 
         <Formik
@@ -57,7 +116,7 @@ const BeersReview = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <FormControl fullWidth>
-                    <FormLabel color="white">Puntaje (1-5)</FormLabel>
+                    <FormLabel color="white" sx={{color:'white', mt:4}}>Puntaje (1-5)</FormLabel>
                     <Slider
                       value={values.rating}
                       min={1}
@@ -72,6 +131,28 @@ const BeersReview = () => {
                         '& .MuiSlider-thumb': { backgroundColor: '#CFB523' },
                         '& .MuiSlider-track': { backgroundColor: '#CFB523' },
                         '& .MuiSlider-rail': { backgroundColor: '#D9D9D9' },
+                        '& .MuiInputBase-input': {
+                          color: '#606060',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#787878',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#787878',
+                        },
+                        '& .MuiFilledInput-root': {
+                          borderRadius: '8px',
+                          backgroundColor: '#D9D9D9',
+                        },
+                        '& .MuiFilledInput-root:before': {
+                          borderColor: '#303030',
+                        },
+                        '& .MuiFilledInput-root:hover:before': {
+                          borderColor: '#303030',
+                        },
+                        '& .MuiFilledInput-root:after': {
+                          borderColor: '#303030',
+                        },
                       }}
                     />
                     {touched.rating && errors.rating && (
@@ -126,23 +207,30 @@ const BeersReview = () => {
             </Form>
           )}
         </Formik>
-
-        <Button
-          onClick={() => navigate(`/beers/${id}`)}
-          variant="outlined"
-          sx={{
-            mt: 2,
-            color: 'white',
-            borderColor: '#CFB523',
-            '&:hover': {
-              backgroundColor: '#CFB523',
-              color: 'white',
-            },
-          }}
-        >
-          Back to Beer details
-        </Button>
       </Box>
+
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
+      <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
+        <BottomNavigationAction onClick={() => navigate('/bars')} label="Home" icon={
+          <Box
+            component="img"
+            src={HomeIcon}
+            alt="Bars"
+            sx={{ width: 72, height: 70 }}
+          />
+        } />
+        <BottomNavigationAction onClick={() => navigate('/beers')} label="Search" icon={
+          <Box
+            component="img"
+            src={SearchIcon}
+            alt="Search"
+            sx={{ width: 32, height: 26 }}
+          />
+        }/>
+        <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
+        <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
+      </BottomNavigation>
+    </Box>
     </Container>
   );
 };

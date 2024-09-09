@@ -7,6 +7,8 @@ import { ChevronLeft } from '@mui/icons-material';
 import HomeIcon from '../assets/baricon_gray.png';
 import SearchIcon from '../assets/searchyellow.png';
 import MapIcon from '@mui/icons-material/Place';
+import Menu from '@mui/icons-material/Menu';
+import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import { Button } from '@mui/material';
 
@@ -62,12 +64,26 @@ const BeersDetail = () => {
         sx={{ width: 100, height: 'auto', marginBottom: 1 }}
       />
 
-      <Grid container justifyContent="center" sx={{ mt: 4 }}>
+      <Grid container justifyContent="center" sx={{ mt: 4, background: '#303030'}}>
         <Grid item xs={12} md={8}>
-          <Card sx={{ padding: 4 }}>
+          <Card sx={{ padding: 4, background: '#303030', color: 'white', fontFamily: 'Roboto, sans-serif'}}>
             <Grid container alignItems="center" spacing={2}>
               <Grid item xs={8}>
-                <Typography variant="h4" component="div" align="center" gutterBottom>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  sx={{
+                    color: 'white',
+                    textAlign: 'center',
+                    mt: 2,
+                    fontFamily: 'Roboto, sans-serif',
+                    fontWeight: 900,
+                    fontSize: '50px',
+                    textShadow: '1px 3px 3px black',
+                    WebkitTextStroke: '1px black',
+                    MozTextStroke: '1px black',
+                  }}
+                >
                   {beer.name}
                 </Typography>
               </Grid>
@@ -88,40 +104,40 @@ const BeersDetail = () => {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <Typography variant="body1">
-                  <strong>Type:</strong> {beer.beer_type}
+                  <strong>Type:</strong> <span style={{ color: '#CFB523' }}>{beer.beer_type}</span>
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Name:</strong> {beer.name}
+                  <strong>Name:</strong> <span style={{ color: '#CFB523' }}>{beer.name}</span>
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Hop:</strong> {beer.hop}
+                  <strong>Hop:</strong> <span style={{ color: '#CFB523' }}>{beer.hop}</span>
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Malts:</strong> {beer.malts}
+                  <strong>Malts:</strong> <span style={{ color: '#CFB523' }}>{beer.malts}</span>
                 </Typography>
                 <Typography variant="body1">
-                  <strong>Alcohol:</strong> {beer.alcohol}
+                  <strong>Alcohol:</strong> <span style={{ color: '#CFB523' }}>{beer.alcohol}</span>
                 </Typography>
               </Grid>
 
             <Grid item xs={6}>
               <Typography variant="body1">
-                <strong>Brand:</strong> {beer.brand ? beer.brand.name : 'N/A'}
+                <strong>Brand:</strong> <span style={{ color: '#CFB523' }}>{beer.brand ? beer.brand.name : 'N/A'}</span>
               </Typography>
               <Typography variant="body1">
-                <strong>Brewery:</strong> {beer.brand && beer.brand.brewery ? beer.brand.brewery.name : 'N/A'}
+                <strong>Brewery:</strong> <span style={{ color: '#CFB523' }}>{beer.brand && beer.brand.brewery ? beer.brand.brewery.name : 'N/A'}</span>
               </Typography>
               <Typography variant="body1">
-                <strong>Style:</strong> {beer.style}
+                <strong>Style:</strong> <span style={{ color: '#CFB523' }}>{beer.style}</span>
               </Typography>
               <Typography variant="body1">
-                <strong>Yeast:</strong> {beer.yeast}
+                <strong>Yeast:</strong> <span style={{ color: '#CFB523' }}>{beer.yeast}</span>
               </Typography>
               <Typography variant="body1">
-                <strong>IBU:</strong> {beer.ibu}
+                <strong>IBU:</strong> <span style={{ color: '#CFB523' }}>{beer.ibu}</span>
               </Typography>
               <Typography variant="body1">
-                <strong>BLG:</strong> {beer.blg}
+                <strong>BLG:</strong> <span style={{ color: '#CFB523' }}>{beer.blg}</span>
               </Typography>
             </Grid>
           </Grid>
@@ -129,19 +145,19 @@ const BeersDetail = () => {
           <Divider sx={{ my: 2 }} />
 
           <Box mt={3}>
-            <Typography variant="h6" component="div">
-              <strong>Bars Serving This Beer:</strong>
+            <Typography variant="h6" component="div" sx={{color: '#'}}>
+              <strong>Brewery</strong>
             </Typography>
             {beer.bars && beer.bars.length > 0 ? (
               <Grid container spacing={2} sx={{ mt: 2 }}>
                 {beer.bars.map((bar, index) => (
                   <Grid item xs={12} sm={6} key={index}>
-                    <Card sx={{ padding: 2 }}>
+                    <Card sx={{ padding: 2, background: '#404040', color:'white', fontfamily:'Roboto, sans-serif'}}>
                       <Typography variant="body1">
-                        <strong>Bar Name:</strong> {bar.name}
+                        <strong>Bar Name:</strong> <span style={{ color: '#CFB523' }}>{bar.name}</span>
                       </Typography>
                       <Typography variant="body1">
-                        <strong>Address:</strong> {bar.address ? `${bar.address.street}, ${bar.address.city}, ${bar.address.country.name}` : 'N/A'}
+                        <strong>Address:</strong> <span style={{ color: '#CFB523' }}>{bar.address ? `${bar.address.street}, ${bar.address.city}, ${bar.address.country.name}` : 'N/A'}</span>
                       </Typography>
                     </Card>
                   </Grid>
@@ -156,31 +172,48 @@ const BeersDetail = () => {
 
           <Box mt={3} textAlign="center">
             <Typography variant="h6" component="div">
-              <strong>Average Rating:</strong>
+              <strong>Rating:</strong>
             </Typography>
-            <Typography variant="h4" color="primary">
+            <Typography variant="h4" color="#CFB523" sx={{fontfamily:'Roboto, sans-serif'}}>
               {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'N/A'}
             </Typography>
+          </Box>
+          <Box mt={3} textAlign="center" display="flex" justifyContent="center"
+            alignItems="center"
+            flexDirection="column" sx={{ mb: 8 }}>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#CFB523',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#bfa11e',
+                }
+              }}
+              onClick={() => navigate(`/beers/${id}/review`)}
+            >
+              <AddIcon sx={{ mr: 1 }} />
+              ADD RATING
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#303030',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '606060',
+                }
+              }}
+              onClick={() => navigate(`/beers/${id}/review`)}
+            >
+              <Menu/>
+              ALL REVIEWS
+            </Button>
           </Box>
         </Card>
       </Grid>
     </Grid>
 
-    <Box mt={3} textAlign="center" sx={{ mb: 8 }}> {/* Añade margen inferior */}
-      <Button
-        variant="contained"
-        sx={{
-          backgroundColor: '#CFB523', // Color amarillo
-          color: 'white', // Letras blancas
-          '&:hover': {
-            backgroundColor: '#bfa11e', // Un color ligeramente más oscuro para el hover
-          }
-        }}
-        onClick={() => navigate(`/beers/${id}/review`)}
-      >
-        Write a Review
-      </Button>
-    </Box>
 
     <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
       <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>

@@ -18,7 +18,7 @@ function App() {
   return (
     <Router>
       <Container>
-      <Header />
+      <Header/>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<SignUp />} />

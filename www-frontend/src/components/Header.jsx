@@ -29,13 +29,12 @@ function Header() {
     <AppBar position="static" sx={{ mb: 2, backgroundColor: 'transparent', boxShadow: 'none' }}>
       <Toolbar>
         <IconButton
-          edge="start"
+          edge="end"
           color="primary"
           aria-label="menu"
           sx={{
             position: 'absolute',
-            top: 16,
-            left: 16,
+            right: 16,
             backgroundColor: '#CFB523',
             color: 'white',
             borderRadius: '50%',
