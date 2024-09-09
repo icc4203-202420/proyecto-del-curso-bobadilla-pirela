@@ -180,6 +180,22 @@ const BeersDetail = () => {
       >
         Write a Review
       </Button>
+
+      <Button
+        variant="outlined"
+        sx={{
+          marginLeft: 2,
+          color: '#CFB523', // Color amarillo para el texto
+          borderColor: '#CFB523', // Color amarillo para el borde
+          '&:hover': {
+            borderColor: '#bfa11e', // Un color ligeramente más oscuro para el borde en hover
+            color: '#bfa11e' // Un color ligeramente más oscuro para el texto en hover
+          }
+        }}
+        onClick={() => navigate(`/beers/${id}/review-index`)}
+      >
+        See All Reviews
+      </Button>
     </Box>
 
     <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>

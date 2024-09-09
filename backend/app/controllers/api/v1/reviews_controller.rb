@@ -3,10 +3,22 @@ class API::V1::ReviewsController < ApplicationController
   before_action :set_user, only: [:index, :create]
   before_action :set_review, only: [:show, :update, :destroy]
   before_action :authenticate_user_from_token!
+  before_action :set_beer, only: [:index]
 
   def index
-    @reviews = Review.where(user: @user)
-    render json: { reviews: @reviews }, status: :ok
+    if @beer
+      @reviews = Review.where(beer: @beer)
+    elsif @user
+      @reviews = Review.where(user: @user)
+    else
+      @reviews = Review.all
+    end
+
+    render json: {
+      reviews: @reviews.as_json(include: {
+        user: { only: [:handle] }
+      })
+    }, status: :ok
   end
 
   def show
@@ -54,13 +66,13 @@ class API::V1::ReviewsController < ApplicationController
   def current_user
     @current_user
   end
-  
+
   def set_user
     @user = current_user
   end
 
   def set_beer
-    @beer = Beer.find(params[:beer_id])
+    @beer = Beer.find_by(id: params[:beer_id])
     render json: { error: "Beer not found" }, status: :not_found unless @beer
   end
 
@@ -80,5 +92,4 @@ class API::V1::ReviewsController < ApplicationController
       head :unauthorized
     end
   end
-
 end
