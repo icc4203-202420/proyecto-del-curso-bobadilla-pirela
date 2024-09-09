@@ -7,15 +7,20 @@ class API::V1::ReviewsController < ApplicationController
 
   def index
     if @beer
-      @reviews = Review.where(beer: @beer)
+      all_reviews = Review.where(beer: @beer)
     elsif @user
-      @reviews = Review.where(user: @user)
+      all_reviews = Review.where(user: @user)
     else
-      @reviews = Review.all
+      all_reviews = Review.all
     end
-
+  
+    user_reviews = all_reviews.where(user: current_user)
+    other_reviews = all_reviews.where.not(user: current_user)
+  
+    sorted_reviews = user_reviews + other_reviews
+  
     render json: {
-      reviews: @reviews.as_json(include: {
+      reviews: sorted_reviews.as_json(include: {
         user: { only: [:handle] }
       })
     }, status: :ok

@@ -204,7 +204,7 @@ const BeersDetail = () => {
                   backgroundColor: '606060',
                 }
               }}
-              onClick={() => navigate(`/beers/${id}/review`)}
+              onClick={() => navigate(`/beers/${id}/review-index`)}
             >
               <Menu/>
               ALL REVIEWS

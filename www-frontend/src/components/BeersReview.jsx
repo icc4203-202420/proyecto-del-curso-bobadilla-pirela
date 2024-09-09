@@ -17,7 +17,15 @@ const reviewSchema = Yup.object().shape({
     .max(5, 'El puntaje debe ser máximo 5')
     .required('El puntaje es requerido'),
   text: Yup.string()
-    .min(15, 'La reseña debe tener al menos 15 palabras')
+    .test(
+      'min-words',
+      'La reseña debe tener al menos 15 palabras',
+      function (value) {
+        if (!value) return false;
+        const wordCount = value.trim().split(/\s+/).length;
+        return wordCount >= 15;
+      }
+    )
     .required('La reseña es requerida'),
 });
 
