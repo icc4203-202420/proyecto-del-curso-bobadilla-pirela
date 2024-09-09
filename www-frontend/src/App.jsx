@@ -3,7 +3,7 @@ import { Container, Box, Typography, Button, AppBar, Toolbar, IconButton } from 
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/Home';
 import SignUp from './components/SignUp';
-import './App.css'
+import './App.css';
 import BarsIndex from './components/BarsIndex';
 import BeersIndex from './components/BeersIndex';
 import SearchUsers from "./components/SearchUsers";
@@ -11,6 +11,7 @@ import BarsEventsIndex from './components/BarsEventsIndex';
 import BeersDetail from './components/BeersDetail';
 import Header from './components/Header';
 import BeersReview from './components/BeersReview';
+import BeersReviewIndex from './components/BeersReviewIndex'
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/search-users" element={<SearchUsers />} />
           <Route path="/bars/:id/events" element={<BarsEventsIndex />} />
           <Route path="/beers/:id/review" element={<BeersReview />} />
+          <Route path="/beers/:id/review-index" element={<BeersReviewIndex />} />
         </Routes>
       </Container>
     </Router>
