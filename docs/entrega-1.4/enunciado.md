@@ -31,7 +31,7 @@ Es importante que aparezcan los eventos con suficiente información que los desc
 
 **Requisito 8**
 
-Es importante que desde la vista de un evento se puedan listar las personas que asistirán.
+Es importante que desde la vista de un evento se puedan listar las personas que asistirán. Quiénes sean amigos del usuario deben aparecer listados al comienzo y aparecer identificados como amigos. Deben aparecer con su nombre y/o _handle_ en el sistema. 
 
 ## Sobre herramientas a utilizar
 
@@ -61,4 +61,4 @@ Los ponderadores aplican al puntaje máximo del ítem. La nota en escala 1-7 se 
 
 El código con la implementación de la aplicación debe ser entregado en este repositorio. Para la evaluación, se debe realizar un pull request que incluya al ayudante de proyecto asignado.
 
-La fecha límite para la entrega 1.4 es domingo 15/9 a las 23:59 hrs.
+La fecha límite para la entrega 1.4 es lunes 16/9 a las 23:59 hrs.
