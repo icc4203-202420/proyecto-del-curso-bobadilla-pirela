@@ -108,7 +108,20 @@ function BarsIndex() {
             }}
             onClick={() => navigate(`/bars/${bar.id}/events`)}
           >
-            <ListItemText primary={bar.name} sx={{ textAlign: 'left', color: 'white' }} />
+            <ListItemText
+              primary={bar.name}
+              secondary={
+                <Typography variant="body2" sx={{ color: '#CFB523' }}>
+                  {bar.address && (
+                    <>
+                      {bar.address.line1} {bar.address.line2 && `, ${bar.address.line2}`}<br />
+                      {bar.address.city}{bar.address.country && `, ${bar.address.country}`}
+                    </>
+                  )}
+                </Typography>
+              }
+              sx={{ textAlign: 'left', color: 'white' }}
+            />
             <ListItemIcon edge="end">
               <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
             </ListItemIcon>

@@ -7,23 +7,23 @@ import HomeIcon from '../assets/baricon.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '../assets/searchgray.png';
-import { ChevronRight ,ChevronLeft } from '@mui/icons-material';
+import { ChevronRight, ChevronLeft } from '@mui/icons-material';
 
 function BarsEventsIndex() {
   const { id } = useParams();
+  const [bar, setBar] = useState(null);
   const [events, setEvents] = useState([]);
-  const [barName, setBarName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`http://localhost:3000/api/api/v1/bars/${id}/events`)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
+        setBar(response.data || {});
         setEvents(response.data.events || []);
-        setBarName(response.data.bar.name || "");
       })
       .catch(error => {
-        console.error("No se pudieron capturar los eventos!", error);
+        console.error("No se pudieron capturar los datos del bar!", error);
       });
   }, [id]);
 
@@ -48,32 +48,70 @@ function BarsEventsIndex() {
         sx={{ width: 100, height: 'auto', marginBottom: 1 }}
       />
 
-      <Typography
-        variant="h4"
-        component="h1"
-        sx={{
-          color: 'white',
-          textAlign: 'center',
-          mt: 2,
-          fontFamily: 'Roboto, sans-serif',
-          fontWeight: 900,
-          fontSize: '50px',
-          textShadow: '1px 3px 3px black',
-          WebkitTextStroke: '1px black',
-          MozTextStroke: '1px black',
-        }}
-      >
-        {barName}
-      </Typography>
+      {bar && (
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              color: 'white',
+              textAlign: 'center',
+              mt: 2,
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 900,
+              fontSize: '50px',
+              textShadow: '1px 3px 3px black',
+              WebkitTextStroke: '1px black',
+              MozTextStroke: '1px black',
+            }}
+          >
+            {bar.name}
+          </Typography>
+
+          {bar.image_url && (
+            <Box
+              component="img"
+              src={bar.image_url}
+              alt="Bar"
+              sx={{ width: '100%', height: 'auto', mb: 2 }}
+            />
+          )}
+
+          <Typography
+            variant="body1"
+            component="p"
+            sx={{ color: 'white', textAlign: 'center', mt: 4, mb:2}}
+          >
+            {bar.address?.line1 && <div><Typography variant="body1" sx={{ color: '#CFB523' }}>{bar.address.line1}</Typography></div>}
+            {bar.address?.line2 && <div>{bar.address.line2}</div>}
+            {bar.address?.city && <div>{bar.address.city}</div>}
+            {bar.address?.country && <Typography variant="body1" sx={{ color: '#CFB523', fontWeight: 'bold' }}>{bar.address.country}</Typography>}
+          </Typography>
+        </Box>
+      )}
 
       <List sx={{ textAlign: 'left', color: 'white' }}>
         {events.length > 0 ? (
           events.map(event => (
             <ListItem key={event.id} sx={{ justifyContent: 'center', display: 'flex', color: 'white' }}>
-              <ListItemText primary={event.name} sx={{ textAlign: 'left', color: 'white' }}/>
-                <ListItemIcon edge="end">
-                  <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
-                </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography sx={{ color: 'white' }}>{event.name}</Typography>
+                    <Typography
+                      sx={{
+                        color: '#CFB523',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {new Date(event.date).toLocaleDateString()}
+                    </Typography>
+                  </Box>}
+                sx={{ textAlign: 'left', color: 'white' }}
+              />
+              <ListItemIcon edge="end" onClick={() => navigate(`/bars/${bar.id}/events/${event.id}`)}>
+                <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />
+              </ListItemIcon>
             </ListItem>
           ))
         ) : (
@@ -98,7 +136,7 @@ function BarsEventsIndex() {
               alt="Search"
               sx={{ width: 32, height: 26 }}
             />
-          } />
+          }/>
           <BottomNavigationAction onClick={() => navigate('/bars')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
           <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
         </BottomNavigation>

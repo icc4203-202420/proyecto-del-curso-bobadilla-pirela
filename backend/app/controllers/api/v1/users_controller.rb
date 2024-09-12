@@ -1,12 +1,14 @@
 class API::V1::UsersController < ApplicationController
-  include Authenticable
+  before_action :authenticate_user_from_token!
   before_action :authenticate_user!, only: [:update]
   
   respond_to :json
   before_action :set_user, only: [:show, :update, :friendships]
   
   def index
-    @users = User.includes(:reviews, :address).all   
+    users = User.where.not(id: current_user.id).select(:id, :handle)
+    
+    render json: { users: users, current_user: { id: current_user.id } }
   end
 
   def show
@@ -55,4 +57,17 @@ class API::V1::UsersController < ApplicationController
             })
   end
 
+  def authenticate_user_from_token!
+    token = request.headers['Authorization']&.split(' ')&.last
+    return head :unauthorized unless token
+
+    begin
+      decoded_token = JWT.decode(token, Rails.application.credentials.devise_jwt_secret_key, true, algorithm: 'HS256')
+      payload = decoded_token.first
+      @current_user = User.find(payload['sub'])
+    rescue JWT::DecodeError, JWT::ExpiredSignature => e
+      Rails.logger.error "JWT Error: #{e.message}"
+      head :unauthorized
+    end
+  end
 end

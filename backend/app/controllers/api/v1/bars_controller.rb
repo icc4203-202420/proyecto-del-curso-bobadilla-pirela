@@ -8,17 +8,27 @@ class API::V1::BarsController < ApplicationController
 
   def index
     @bars = Bar.all
-    render json: { bars: @bars }, status: :ok
+    render json: { bars: @bars.as_json(include: { address: { only: [:line1, :line2, :city, :country] } }) }, status: :ok
   end
 
   def show
     if @bar.image.attached?
-      render json: @bar.as_json.merge({ 
-        image_url: url_for(@bar.image), 
-        thumbnail_url: url_for(@bar.thumbnail) }),
-        status: :ok
+      render json: @bar.as_json(
+        include: { 
+          address: { only: [:line1, :line2, :city, :country] },
+          events: { only: [:id, :name, :date] }
+        }
+      ).merge({
+        image_url: url_for(@bar.image),
+        thumbnail_url: url_for(@bar.thumbnail)
+      }), status: :ok
     else
-      render json: { bar: @bar.as_json }, status: :ok
+      render json: @bar.as_json(
+        include: { 
+          address: { only: [:line1, :line2, :city, :country] },
+          events: { only: [:id, :name, :date] }
+        }
+      ), status: :ok
     end
   end
 

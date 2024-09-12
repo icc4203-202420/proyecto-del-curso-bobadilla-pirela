@@ -12,7 +12,7 @@ import BeersDetail from './components/BeersDetail';
 import Header from './components/Header';
 import BeersReview from './components/BeersReview';
 import BeersReviewIndex from './components/BeersReviewIndex'
-
+import BarsEvents from './components/BarsEvent';
 
 function App() {
 
@@ -28,6 +28,7 @@ function App() {
           <Route path="/bars" element={<BarsIndex />} />
           <Route path="/search-users" element={<SearchUsers />} />
           <Route path="/bars/:id/events" element={<BarsEventsIndex />} />
+          <Route path="/bars/:bar_id/events/:id" element={<BarsEvents />} />
           <Route path="/beers/:id/review" element={<BeersReview />} />
           <Route path="/beers/:id/review-index" element={<BeersReviewIndex />} />
         </Routes>
