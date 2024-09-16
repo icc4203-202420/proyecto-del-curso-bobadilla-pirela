@@ -14,6 +14,8 @@ import BeersReview from './components/BeersReview';
 import BeersReviewIndex from './components/BeersReviewIndex'
 import BarsEvents from './components/BarsEvent';
 import BarsIndexMap from './components/BarsIndexMap';
+import Login from './components/Login';
+import HomeButton from './components/HomeButton';
 
 function App() {
 
@@ -23,6 +25,7 @@ function App() {
       <Header/>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/beers" element={<BeersIndex />} />
           <Route path="/beers/:id" element={<BeersDetail />} />

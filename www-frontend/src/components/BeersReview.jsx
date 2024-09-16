@@ -214,7 +214,7 @@ const BeersReview = () => {
           <Button
             fullWidth
             variant="contained"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/login')}
             sx={{
               backgroundColor: '#CFB523',
               color: 'white',

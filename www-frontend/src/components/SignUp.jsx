@@ -48,7 +48,7 @@ function SignUp() {
       });
 
       if (response.status === 200) {
-        navigate('/');
+        navigate('/login');
       } else {
         console.error('Error creating user:', response.data);
       }
@@ -132,7 +132,7 @@ function SignUp() {
           {({ values, handleChange }) => (
             <Form noValidate>
               <IconButton
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/login')}
                 sx={{
                   position: 'absolute',
                   top: 0,
