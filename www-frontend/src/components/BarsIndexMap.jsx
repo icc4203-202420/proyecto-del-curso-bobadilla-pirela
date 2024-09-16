@@ -112,7 +112,6 @@ const BarsIndexMap = () => {
         markers,
       });
 
-      // Centrar el mapa en uno de los bares filtrados (si hay bares)
       if (barsToDisplay.length > 0) {
         const firstBarPosition = { lat: barsToDisplay[0].latitude, lng: barsToDisplay[0].longitude };
         mapRef.current.panTo(firstBarPosition);

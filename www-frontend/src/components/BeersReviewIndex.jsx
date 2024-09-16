@@ -16,7 +16,8 @@ const initialState = {
   error: null,
   page: 1,
   totalPages: 1,
-  beerName: ''
+  beerName: '',
+  needsLogin: false,
 };
 
 const actions = {
@@ -25,7 +26,8 @@ const actions = {
   SET_ERROR: 'SET_ERROR',
   SET_PAGE: 'SET_PAGE',
   SET_TOTAL_PAGES: 'SET_TOTAL_PAGES',
-  SET_BEER_NAME: 'SET_BEER_NAME'
+  SET_BEER_NAME: 'SET_BEER_NAME',
+  SET_NEEDS_LOGIN: 'SET_NEEDS_LOGIN',
 };
 
 const reducer = (state, action) => {
@@ -42,6 +44,8 @@ const reducer = (state, action) => {
       return { ...state, totalPages: action.payload };
     case actions.SET_BEER_NAME:
       return { ...state, beerName: action.payload };
+    case actions.SET_NEEDS_LOGIN:
+      return { ...state, needsLogin: true, loading: false };
     default:
       return state;
   }
@@ -56,9 +60,13 @@ const BeersReviewIndex = () => {
     const fetchReviews = async () => {
       dispatch({ type: actions.SET_LOADING });
 
-      try {
-        const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token');
+      if (!token) {
+        dispatch({ type: actions.SET_NEEDS_LOGIN });
+        return;
+      }
 
+      try {
         const beerResponse = await axios.get(`http://localhost:3000/api/api/v1/beers/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -70,7 +78,7 @@ const BeersReviewIndex = () => {
         const reviewsResponse = await axios.get(`http://localhost:3000/api/api/v1/beers/${id}/reviews`, {
           params: { page: state.page },
           headers: {
-            Authorization: `Bearer ${token}` 
+            Authorization: `Bearer ${token}`
           }
         });
 
@@ -91,6 +99,16 @@ const BeersReviewIndex = () => {
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (state.needsLogin) {
+    return (
+      <Container component="main" maxWidth="md" sx={{ paddingBottom: 10 }}>
+        <Typography variant="h6" sx={{ color: 'white', textAlign: 'center', mt: 4 }}>
+          You need to log in to see all reviews. 
+        </Typography>
+      </Container>
     );
   }
 

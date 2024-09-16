@@ -7,7 +7,7 @@ import HomeIcon from '../assets/baricon_gray.png';
 import SearchIcon from '../assets/searchgray.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
-import CloseIcon from '@mui/icons-material/Close'; // Importar icono de cerrar
+import CloseIcon from '@mui/icons-material/Close';
 
 const initialState = {
   users: [],

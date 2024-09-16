@@ -44,7 +44,7 @@ const BeersDetail = () => {
   }
 
   return (
-    <Container component="main" maxWidth="md" sx={{ paddingBottom: 10 }}> {/* Añade padding inferior */}
+    <Container component="main" maxWidth="md" sx={{ paddingBottom: 10 }}>
       <Box
         onClick={() => navigate('/beers')}
         sx={{
