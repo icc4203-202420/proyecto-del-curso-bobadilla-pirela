@@ -86,25 +86,6 @@ class API::V1::EventsController < ApplicationController
     end
   end
 
-  def pictures
-    if @event
-      pictures = @event.event_pictures.includes(:user).map do |picture|
-        {
-          id: picture.id,
-          user_id: picture.user.id,
-          image_url: url_for(picture.image),
-        }
-      end
-  
-      render json: { pictures: pictures }, status: :ok
-    else
-      render json: { error: 'Event not found' }, status: :not_found
-    end
-  end
-
-  def make_picture
-  end
-
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -130,4 +111,3 @@ class API::V1::EventsController < ApplicationController
     @event.image.attach(io: decoded_image[:io], filename: decoded_image[:filename], content_type: decoded_image[:content_type])
   end
 end
-  

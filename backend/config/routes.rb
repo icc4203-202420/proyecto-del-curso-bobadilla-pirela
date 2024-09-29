@@ -39,10 +39,8 @@ Rails.application.routes.draw do
           get 'attendees', to: 'attendances#attendees'
         end
         resource :attendance, only: [:show, :create, :destroy]
-        get 'photo-index', to: 'events#pictures'
-        get 'photo', to: 'events#take_picture'
+        resources :event_pictures
       end
-
 
       resources :reviews, only: [:index, :show, :create, :update, :destroy]
     end

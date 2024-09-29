@@ -47,6 +47,9 @@ function Login() {
       if (response.status === 200) {
         const { token } = response.data.status;
         localStorage.setItem('token', token);
+
+        const user_id = response.data.status.data.user.id;
+        localStorage.setItem('user_id', user_id);
         navigate('/');
       }
     } catch (error) {

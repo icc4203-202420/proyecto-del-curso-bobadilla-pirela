@@ -5,6 +5,7 @@ class Event < ApplicationRecord
   has_many :attendees, through: :attendances, source: :user
 
   has_one_attached :flyer
+  has_many :event_pictures, dependent: :destroy
 
   validates :flyer, content_type: { in: ['image/png', 'image/jpg', 'image/jpeg'],
                                     message: 'must be a valid image format' },

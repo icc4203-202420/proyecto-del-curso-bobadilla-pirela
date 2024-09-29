@@ -29,7 +29,7 @@ const Home = () => {
               alt="Home"
               sx={{ width: 120, height: 120 }}
             />
-            <Typography variant="h6">Home</Typography>
+            <Typography variant="h6">Bars</Typography>
           </CardContent>
         </CardActionArea>
       </Card>
