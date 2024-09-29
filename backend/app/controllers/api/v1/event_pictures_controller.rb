@@ -4,7 +4,7 @@ class API::V1::EventPicturesController < ApplicationController
     # GET /api/v1/event_pictures
     def index
       @event_pictures = EventPicture.all
-      render json: @event_pictures, status: :ok
+      render json: EventPictureSerializer.new(@event_pictures).serializable_hash, status: :ok
     end
   
     # GET /api/v1/event_pictures/:id
