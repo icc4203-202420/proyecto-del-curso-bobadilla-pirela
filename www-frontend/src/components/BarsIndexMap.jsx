@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useLoadGMapsLibraries } from '../hooks/useLoadGMapsLibraries';
 import { ControlPosition, MAPS_LIBRARY, MARKER_LIBRARY } from '../hooks/constants';
-import { Box, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Box, Container, Typography, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import HomeIcon from '../assets/baricon.png';
+import HomeIcon from '../assets/baricon_gray.png';
 import SearchIcon from '../assets/searchgray.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
+import main_icon from '../assets/icon_beercheers.png';
 
 const MAP_CENTER = { lat: -31.56391, lng: 147.154312 };
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -26,7 +27,7 @@ const BarsIndexMap = () => {
   // Petición bars
   useEffect(() => {
     const fetchBars = async () => {
-      const url = 'http://localhost:3000/api/api/v1/bars';
+      const url = `${BASE_URL}/api/v1/bars`;
       const response = await fetch(url);
       const dataParsed = await response.json();
       setBars(dataParsed.bars || []);
@@ -68,7 +69,6 @@ const BarsIndexMap = () => {
         title: 'Mi Ubicación',
       });
       marker.setMap(mapRef.current);
-
     });
 
     const createMarkers = (barsToDisplay) => {
@@ -119,7 +119,6 @@ const BarsIndexMap = () => {
     };
 
     createMarkers(filteredBars);
-
   }, [libraries, filteredBars]);
 
   const handleInputChange = (event) => {
@@ -145,7 +144,33 @@ const BarsIndexMap = () => {
   }
 
   return (
-    <>
+    <Container component="main" maxWidth="md" sx={{ mt: 0, pb: 12 }}>
+      <Box
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 2, marginTop: 2 }}
+      />
+
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          color: 'white',
+          textAlign: 'center',
+          mt: 2,
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 900,
+          fontSize: '50px',
+          textShadow: '1px 3px 3px black',
+          WebkitTextStroke: '1px black',
+          MozTextStroke: '1px black',
+        }}
+      >
+        Find your<br />
+        favorite bar
+      </Typography>
+
       <input
         ref={inputRef}
         type="text"
@@ -159,22 +184,25 @@ const BarsIndexMap = () => {
           zIndex: 1000,
           padding: '10px',
           fontSize: '16px',
+          backgroundColor: 'white',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
         }}
       />
       <div
         ref={mapNodeRef}
         style={{
-          width: '1000%',
-          height: 'calc(100vh - 64px)',
+          width: '110%', // Cambiado de '1000%' a '100%'
+          height: '500px', // Altura ocupando todo menos el navbar
           marginBottom: '64px',
-          display: 'flex',
+          display: 'flex-center',
           justifyContent: 'center',
           alignItems: 'center',
         }}
       />
       
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
-        <BottomNavigation sx={{ backgroundColor: '#303030', color: '#CFB523', borderTop: '2px solid #CFB523' }}>
+        <BottomNavigation sx={{ backgroundColor: '#303030', color: '#E3E5AF', borderTop: '2px solid #CFB523' }}>
           <BottomNavigationAction 
             onClick={() => navigate('/bars')} 
             label="Home" 
@@ -189,7 +217,7 @@ const BarsIndexMap = () => {
             onClick={() => navigate('/bars-index-map')} 
             label="Map" 
             icon={<MapIcon />} 
-            sx={{ color: '#E3E5AF' }} 
+            sx={{ color: '#CFB523' }} 
           />
           <BottomNavigationAction 
             onClick={() => navigate('/search-users')} 
@@ -199,7 +227,7 @@ const BarsIndexMap = () => {
           />
         </BottomNavigation>
       </Box>
-    </>
+    </Container>
   );
 };
 

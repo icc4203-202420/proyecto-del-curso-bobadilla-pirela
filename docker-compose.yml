@@ -16,7 +16,11 @@ services:
       RAILS_ENV: development
       BUNDLE_PATH: /usr/local/bundle
       REDIS_URL: redis://redis:6379/0
-    command: ./bin/rails server -b 0.0.0.0 -p 3001
+    command: >
+      bash -c "bundle exec ./bin/rails db:create && 
+                bundle exec ./bin/rails db:migrate && 
+                bundle exec ./bin/rails db:seed && 
+                bundle exec rails server -b 0.0.0.0 -p 3001"
     depends_on:
       - redis
 

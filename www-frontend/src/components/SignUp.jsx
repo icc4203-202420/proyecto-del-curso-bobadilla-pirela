@@ -30,7 +30,7 @@ function SignUp() {
       line1: Yup.string(),
       line2: Yup.string(),
       city: Yup.string(),
-      country_id: Yup.string().required('Country is required')
+      country_id: Yup.string()
     }),
   });
 
@@ -69,6 +69,7 @@ function SignUp() {
 
     fetchCountries();
   }, []);
+  
 
   const textFieldStyle = {
     backgroundColor: '#D9D9D9',
@@ -261,12 +262,10 @@ function SignUp() {
                     label="Country"
                     name="address_attributes.country_id"
                     fullWidth
-                    required
                     variant="filled"
                     select
                     onChange={handleChange}
                     sx={textFieldStyle}
-                    helperText={<ErrorMessage name="address_attributes.country_id" component="span" />}
                   >
                     <MenuItem value="">
                       <em>Select a country</em>

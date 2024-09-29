@@ -7,6 +7,8 @@ import HomeIcon from '../assets/baricon.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '../assets/searchgray.png';
+import Menu from '@mui/icons-material/Menu';
+import AddIcon from '@mui/icons-material/Add';
 import { ChevronLeft, Cancel as CancelIcon } from '@mui/icons-material';
 
 function BarsEvent() {
@@ -339,6 +341,64 @@ function BarsEvent() {
               </ListItem>
             ))}
           </List>
+          
+          <Typography
+            variant="h6"
+            component="h3"
+            maxWidth="100%"
+            sx={{
+              color: '#303030',
+              backgroundColor: '#CFB523',
+              textAlign: 'center',
+              mt: 2,
+              fontFamily: 'Roboto, sans-serif',
+              fontSize: '30px',
+              borderRadius: '8px',
+              padding: '5px',
+            }}
+          >
+            Photos
+          </Typography>
+
+          <Box 
+            mt={3} 
+            textAlign="center" 
+            display="flex" 
+            justifyContent="center" 
+            alignItems="center" 
+            flexDirection="row" // Cambiado a "row"
+            sx={{ mb: 8 }}
+          >
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#CFB523',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#bfa11e',
+                }
+              }}
+              onClick={() => navigate(`/bars/${bar.id}/events/${event.id}/photo`)}
+            >
+              <AddIcon sx={{ mr: 1 }} />
+              ADD PHOTO
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#303030',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: '#606060',
+                },
+                ml: 2
+              }}
+              onClick={() => navigate(`/bars/${bar.id}/events/${event.id}/photo-index`)}
+            >
+              <Menu />
+              ALL PHOTOS
+            </Button>
+          </Box>
         </>
       )}
 

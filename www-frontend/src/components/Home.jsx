@@ -20,7 +20,7 @@ const Home = () => {
         gap: 4
       }}
     >
-      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#CFB523' }}>
+      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#E3E5AF' }}>
         <CardActionArea onClick={() => navigate('/bars')}>
           <CardContent sx={{ textAlign: 'center' }}>
             <Box
@@ -34,7 +34,7 @@ const Home = () => {
         </CardActionArea>
       </Card>
 
-      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#CFB523' }}>
+      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#E3E5AF' }}>
         <CardActionArea onClick={() => navigate('/beers')}>
           <CardContent sx={{ textAlign: 'center' }}>
             <Box
@@ -57,7 +57,7 @@ const Home = () => {
         </CardActionArea>
       </Card>
 
-      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#CFB523' }}>
+      <Card sx={{ width: 300, backgroundColor: '#303030', color: '#E3E5AF' }}>
         <CardActionArea onClick={() => navigate('/search-users')}>
           <CardContent sx={{ textAlign: 'center' }}>
             <PersonIcon sx={{ fontSize: 100 }} />

@@ -199,8 +199,29 @@ const BeersReview = () => {
                       sx={{
                         backgroundColor: '#CFB523',
                         color: 'white',
-                        borderRadius: '50px',
-                        '&:hover': { backgroundColor: '#b89f3e' },
+                        borderRadius: '8px',
+                        '& .MuiInputBase-input': {
+                          color: '#606060',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#787878',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#787878',
+                        },
+                        '& .MuiFilledInput-root': {
+                          borderRadius: '8px',
+                          backgroundColor: '#D9D9D9',
+                        },
+                        '& .MuiFilledInput-root:before': {
+                          borderColor: '#303030',
+                        },
+                        '& .MuiFilledInput-root:hover:before': {
+                          borderColor: '#303030',
+                        },
+                        '& .MuiFilledInput-root:after': {
+                          borderColor: '#303030',
+                        },
                       }}
                     >
                       Submit Review

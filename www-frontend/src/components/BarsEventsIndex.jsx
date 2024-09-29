@@ -90,6 +90,25 @@ function BarsEventsIndex() {
         </Box>
       )}
 
+      <Typography
+        variant="h6"
+        component="h3"
+        maxWidth="100%"
+        sx={{
+          color: '#303030',
+          backgroundColor: '#CFB523',
+          textAlign: 'center',
+          mt: 2,
+          fontFamily: 'Roboto, sans-serif',
+          fontSize: '30px',
+          borderRadius: '8px',
+          padding: '5px',
+        }}
+      >
+        Events
+      </Typography>
+
+
       <List sx={{ textAlign: 'left', color: 'white' }}>
         {events.length > 0 ? (
           events.map(event => (
@@ -102,12 +121,13 @@ function BarsEventsIndex() {
                       sx={{
                         color: '#CFB523',
                         whiteSpace: 'nowrap',
+                        ml: 3,
                       }}
                     >
                       {new Date(event.date).toLocaleDateString()}
                     </Typography>
                   </Box>}
-                sx={{ textAlign: 'left', color: 'white' }}
+                sx={{ textAlign: 'left', color: 'white',}}
               />
               <ListItemIcon edge="end" onClick={() => navigate(`/bars/${bar.id}/events/${event.id}`)}>
                 <ChevronRight sx={{ color: 'white', marginLeft: '22px' }} />

@@ -14,6 +14,8 @@ import BeersReview from './components/BeersReview';
 import BeersReviewIndex from './components/BeersReviewIndex'
 import BarsEvents from './components/BarsEvent';
 import BarsIndexMap from './components/BarsIndexMap';
+import BarsEventsPhotoIndex from './components/BarsEventsPhotoIndex';
+import BarsEventsPhoto from './components/BarsEventsPhoto';
 import Login from './components/Login';
 import HomeButton from './components/HomeButton';
 
@@ -34,6 +36,8 @@ function App() {
           <Route path="/search-users" element={<SearchUsers />} />
           <Route path="/bars/:id/events" element={<BarsEventsIndex />} />
           <Route path="/bars/:bar_id/events/:id" element={<BarsEvents />} />
+          <Route path="/bars/:barId/events/:eventId/photo-index" element={<BarsEventsPhotoIndex />} />
+          <Route path="/bars/:barId/events/:eventId/photo" element={<BarsEventsPhoto />} />
           <Route path="/beers/:id/review" element={<BeersReview />} />
           <Route path="/beers/:id/review-index" element={<BeersReviewIndex />} />
         </Routes>

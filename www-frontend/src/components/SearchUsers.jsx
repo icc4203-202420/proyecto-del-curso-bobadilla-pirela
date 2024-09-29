@@ -1,5 +1,5 @@
-import React, { useReducer, useEffect } from 'react';
-import { Container, Typography, Box, TextField, Button, List, ListItem, ListItemText, CircularProgress, IconButton, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import React, { useReducer, useState, useEffect } from 'react';
+import { Container, Typography, Box, MenuItem, TextField, Button, List, ListItem, ListItemText, CircularProgress, IconButton, BottomNavigation, BottomNavigationAction, Autocomplete } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import main_icon from '../assets/icon_beercheers.png';
@@ -61,6 +61,8 @@ const reducer = (state, action) => {
 const SearchUsers = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigate = useNavigate();
+  const [bars, setBars] = useState([]);
+  const [selectedBar, setSelectedBar] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -107,6 +109,16 @@ const SearchUsers = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    axios.get('http://localhost:3000/api/api/v1/bars')
+      .then(response => {
+        setBars(response.data.bars || []);
+      })
+      .catch(error => {
+        console.error("No se pudieron capturar los bars!", error);
+      });
+  }, []);
+
   const handleSearchChange = (event) => {
     dispatch({ type: actions.SET_SEARCH_TERM, payload: event.target.value });
   };
@@ -117,7 +129,7 @@ const SearchUsers = () => {
     try {
       const response = await axios.post(
         `http://localhost:3000/api/api/v1/users/${state.currentUserId}/friendships`,
-        { friendship: { friend_id: userId } },
+        { friendship: { friend_id: userId, bar_id: selectedBar ? selectedBar.id : null } },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -157,7 +169,6 @@ const SearchUsers = () => {
   if (state.error) {
     return <Typography variant="h6">Error: {state.error}</Typography>;
   }
-
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 0, pb: 12 }}>
       <Box
@@ -220,6 +231,48 @@ const SearchUsers = () => {
               borderColor: '#303030',
             },
           }}
+        />
+        <Autocomplete
+          options={bars}
+          getOptionLabel={(option) => option.name}
+          onChange={(event, newValue) => {
+            setSelectedBar(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Select the bar where you met"
+              variant="filled"
+              fullWidth
+              sx={{
+                mt: 2,
+                backgroundColor: '#D9D9D9',
+                borderRadius: '8px',
+                '& .MuiInputBase-input': {
+                  color: '#606060',
+                },
+                '& .MuiInputLabel-root': {
+                  color: '#787878',
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: '#787878',
+                },
+                '& .MuiFilledInput-root': {
+                  borderRadius: '8px',
+                  backgroundColor: '#D9D9D9',
+                },
+                '& .MuiFilledInput-root:before': {
+                  borderColor: '#303030',
+                },
+                '& .MuiFilledInput-root:hover:before': {
+                  borderColor: '#303030',
+                },
+                '& .MuiFilledInput-root:after': {
+                  borderColor: '#303030',
+                },
+              }}
+            />
+          )}
         />
       </Box>
 
