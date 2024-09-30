@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_09_155040) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_30_001428) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -139,6 +139,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_09_155040) do
     t.index ["user_id"], name: "index_event_pictures_on_user_id"
   end
 
+  create_table "event_pictures_users", force: :cascade do |t|
+    t.integer "event_picture_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_picture_id"], name: "index_event_pictures_users_on_event_picture_id"
+    t.index ["user_id"], name: "index_event_pictures_users_on_user_id"
+  end
+
   create_table "events", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -213,6 +222,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_09_155040) do
   add_foreign_key "brands", "breweries"
   add_foreign_key "event_pictures", "events"
   add_foreign_key "event_pictures", "users"
+  add_foreign_key "event_pictures_users", "event_pictures"
+  add_foreign_key "event_pictures_users", "users"
   add_foreign_key "events", "bars"
   add_foreign_key "friendships", "bars"
   add_foreign_key "friendships", "users"

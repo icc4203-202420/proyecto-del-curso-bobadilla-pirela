@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../BarsEventsPhotoIndex.css';
-import { Container, Button, Box, Typography, TextField, CircularProgress, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Container, Box, Typography, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import main_icon from '../assets/icon_beercheers.png';
 import HomeIcon from '../assets/baricon.png';
@@ -16,14 +16,37 @@ const BarsEventsPhotoIndex = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const response = await axios.get(`/api/api/v1/events/${eventId}/event_pictures`);
-        
-        if (response.data && response.data.data) {
-          setPhotos(response.data.data);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:3000/api/api/v1/events/${eventId}/event_pictures`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Photos data: ", response.data.data); // Log de depuración
+
+        if (response.data.data && Array.isArray(response.data.data)) {
+          const photoData = response.data.data;
+          setPhotos(photoData.map(photo => ({
+            id: photo.id,
+            description: photo.attributes.description,
+            url: photo.attributes.url,
+            createdAt: photo.attributes.created_at,
+            updatedAt: photo.attributes.updated_at,
+            taggedUsers: photo.attributes.tagged_users, // Añade esta línea para obtener los usuarios etiquetados
+          })));
         } else {
-          console.warn('Unexpected response structure:', response.data);
+          console.warn('Unexpected response structure:', response.data.data);
           setPhotos([]);
         }
       } catch (error) {
@@ -38,33 +61,60 @@ const BarsEventsPhotoIndex = () => {
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 0, pb: 12 }}>
       <Box
-            onClick={() => navigate(`/bars/${barId}/events/${eventId}`)}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-start',
-              mb: 1,
-              cursor: 'pointer'
-            }}
-          >
-            <ChevronLeft sx={{ color: 'white' }} />
+        onClick={() => navigate(`/bars/${barId}/events/${eventId}`)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          mb: 1,
+          cursor: 'pointer'
+        }}
+      >
+        <ChevronLeft sx={{ color: 'white' }} />
       </Box>
-      <div>
-        <h2>Photos for this Event</h2>
-        <div className="photo-gallery">
-          {photos.map((photo) => (
-            <div key={photo.id} className="photo-item">
-              <img
-                src={photo.attributes.url}
-                alt={photo.attributes.description || 'Event Photo'}
-                className="event-photo"
-              />
-              <p>
-              {photo.attributes.description || 'No description'}
-            </p>
+
+      <Box
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 1 }}
+      />
+
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{
+          color: 'white',
+          textAlign: 'center',
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 900,
+          fontSize: '50px',
+          textShadow: '1px 3px 3px black',
+          WebkitTextStroke: '1px black',
+          MozTextStroke: '1px black',
+        }}
+      >
+        Photos for this event
+      </Typography>
+
+      <div className="photo-gallery">
+        {photos.map((photo) => (
+          <div key={photo.id} className="photo-item">
+            <img
+              src={photo.url}
+              alt={photo.description || 'Event Photo'}
+              className="event-photo"
+            />
+            <p style={{ fontFamily: 'Roboto, sans-serif' }}>{photo.description || 'No description'}</p>
+            <div>
+              {photo.taggedUsers && photo.taggedUsers.length > 0 ? (
+                <p style={{ fontFamily: 'Roboto, sans-serif' }}>Tagged Users: <br/> <span style={{ color: '#303030' }}> {photo.taggedUsers.map(user => user.handle).join(', ')} </span> </p>
+              ) : (
+                <p style={{ fontFamily: 'Roboto, sans-serif' }}>No users tagged</p>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
@@ -84,7 +134,7 @@ const BarsEventsPhotoIndex = () => {
               alt="Search"
               sx={{ width: 32, height: 26 }}
             />
-          }/>
+          } />
           <BottomNavigationAction onClick={() => navigate('/bars-index-map')} label="Map" icon={<MapIcon />} sx={{ color: '#E3E5AF' }} />
           <BottomNavigationAction onClick={() => navigate('/search-users')} label="User" icon={<PersonIcon />} sx={{ color: '#E3E5AF' }} />
         </BottomNavigation>

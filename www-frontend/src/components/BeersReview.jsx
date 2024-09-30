@@ -35,6 +35,13 @@ const BeersReview = () => {
   const [beerName, setBeerName] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');

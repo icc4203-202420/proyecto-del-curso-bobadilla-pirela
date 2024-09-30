@@ -23,6 +23,13 @@ function BarsEvent() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchCurrentUserId = async () => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -383,6 +390,7 @@ function BarsEvent() {
               <AddIcon sx={{ mr: 1 }} />
               ADD PHOTO
             </Button>
+            
             <Button
               variant="contained"
               sx={{

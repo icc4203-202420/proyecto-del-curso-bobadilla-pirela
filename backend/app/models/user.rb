@@ -29,6 +29,9 @@ class User < ApplicationRecord
   has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id'
   has_many :inverse_friends, through: :inverse_friendships, source: :user  
 
+  # Etiquetados en imagenes
+  has_many :event_pictures_users
+  has_many :event_pictures, through: :event_pictures_users
   def generate_jwt
     Warden::JWTAuth::UserEncoder.new.call(self, :user, nil)[0]
   end

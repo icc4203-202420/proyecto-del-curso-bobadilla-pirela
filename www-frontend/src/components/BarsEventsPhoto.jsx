@@ -1,13 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Button, Box, Typography, TextField, CircularProgress, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { Container, Button, Box, Typography, TextField, Autocomplete, CircularProgress, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { ChevronLeft } from '@mui/icons-material';
 import main_icon from '../assets/icon_beercheers.png';
 import HomeIcon from '../assets/baricon.png';
 import MapIcon from '@mui/icons-material/Place';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '../assets/searchgray.png';
+
+const initialState = {
+  users: [],
+  currentUserId: null,
+  loading: false,
+  error: null,
+};
+
+const actions = {
+  SET_LOADING: 'SET_LOADING',
+  SET_USERS: 'SET_USERS',
+  SET_CURRENT_USER_ID: 'SET_CURRENT_USER_ID',
+  SET_ERROR: 'SET_ERROR',
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case actions.SET_LOADING:
+      return { ...state, loading: true };
+    case actions.SET_USERS:
+      return { ...state, users: action.payload, loading: false };
+    case actions.SET_CURRENT_USER_ID:
+      return { ...state, currentUserId: action.payload };
+    case actions.SET_ERROR:
+      return { ...state, error: action.payload, loading: false };
+    default:
+      return state;
+  }
+};
 
 const BarsEventsPhoto = () => {
   const { barId, eventId } = useParams();
@@ -17,15 +46,47 @@ const BarsEventsPhoto = () => {
   const [picture, setPicture] = useState(null);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]); // Estado para usuarios seleccionados
+  const [state, dispatch] = useReducer(reducer, initialState); // Usar el reducer
+
 
   useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    if (userId) {
-      setUserId(userId);
-    } else {
-      console.error('user_id is not found in localStorage');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
     }
+  }, [navigate]);
+
+  // Carga los usuarios al montar el componente
+  useEffect(() => {
+    const fetchUsers = async () => {
+      dispatch({ type: actions.SET_LOADING });
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3000/api/api/v1/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.data.current_user && response.data.users) {
+          const loggedInUserId = response.data.current_user.id;
+          const allUsers = response.data.users;
+          const filteredUsers = allUsers.filter(user => user.id !== loggedInUserId);
+
+          dispatch({ type: actions.SET_USERS, payload: filteredUsers });
+          dispatch({ type: actions.SET_CURRENT_USER_ID, payload: loggedInUserId });
+        } else {
+          throw new Error('Invalid response structure');
+        }
+      } catch (error) {
+        dispatch({ type: actions.SET_ERROR, payload: error.message });
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const handleFileChange = (e) => {
@@ -39,7 +100,7 @@ const BarsEventsPhoto = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!userId) {
+    if (!state.currentUserId || selectedUsers.length === 0) { // Verifica que haya usuarios seleccionados
       return;
     }
 
@@ -49,12 +110,18 @@ const BarsEventsPhoto = () => {
     formData.append('event_picture[picture]', picture);
     formData.append('event_picture[description]', description);
     formData.append('event_picture[event_id]', eventId);
-    formData.append('event_picture[user_id]', userId);
+    
+    // Agrega los IDs de los usuarios seleccionados
+    selectedUsers.forEach(user => {
+      formData.append('event_picture[user_ids][]', user.id); // Se asume que el backend acepta un arreglo de IDs de usuario
+    });
 
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.post(`http://localhost:3000/api/api/v1/events/${eventId}/event_pictures`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
         },
       });
       console.log(response.data);
@@ -66,35 +133,51 @@ const BarsEventsPhoto = () => {
     }
   };
 
+  const handleAddUser = () => {
+    if (selectedUser && !selectedUsers.some(user => user.id === selectedUser.id)) {
+      setSelectedUsers([...selectedUsers, selectedUser]);
+      setSelectedUser(null); // Limpia la selección actual
+    }
+  };
 
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 0, pb: 12 }}>
-        <Box
-          onClick={() => navigate(`/bars/${barId}/events/${eventId}`)}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            mb: 1,
-            cursor: 'pointer'
-          }}
-        >
-          <ChevronLeft sx={{ color: 'white' }} />
-        </Box>
+      <Box
+        onClick={() => navigate(`/bars/${barId}/events/${eventId}`)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          mb: 1,
+          cursor: 'pointer'
+        }}
+      >
+        <ChevronLeft sx={{ color: 'white' }} />
+      </Box>
+        
+      <Box
+        component="img"
+        src={main_icon}
+        alt="Icon"
+        sx={{ width: 100, height: 'auto', marginBottom: 1 }}
+      />
 
-        <Typography variant="h4"
-          sx={{
-            color: 'white',
-            textAlign: 'center',
-          }}
-        >
-          {eventName ? `${eventName}` : 'Add a Photo for this Event'}
-        </Typography>
+      <Typography variant="h4"
+        sx={{
+          color: 'white',
+          textAlign: 'center',
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 900,
+          fontSize: '50px',
+          textShadow: '1px 3px 3px black',
+          WebkitTextStroke: '1px black',
+          MozTextStroke: '1px black',
+        }}
+      >
+        {eventName ? `${eventName}` : 'Add a Photo for this Event'}
+      </Typography>
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
-        </div>
-
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
           <label htmlFor="upload-input" style={{ cursor: 'pointer' }}>
           <div
@@ -102,7 +185,7 @@ const BarsEventsPhoto = () => {
               width: '100px',
               height: '100px',
               borderRadius: '50%',
-              backgroundColor: picture ? '#F0F0F0' : '#FFDB01',
+              backgroundColor: picture ? '#CFB523' : '#CFB523',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
@@ -123,7 +206,7 @@ const BarsEventsPhoto = () => {
                 }}
               />
             ) : (
-              <span style={{ fontSize: '2.5rem', color: 'white' }}>+</span>
+              <span style={{ fontSize: '2.5rem', color: 'black' }}>+</span>
             )}
           </div>
           </label>
@@ -146,21 +229,6 @@ const BarsEventsPhoto = () => {
           onChange={handleDescriptionChange}
           sx={{
             backgroundColor: '#FFFFFF',
-            borderRadius: '8px',
-            '& .MuiInputLabel-root': { color: '#606060' },
-            '& .MuiInputBase-input': { color: '#303030' },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#606060' },
-          }}
-        />
-
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          disabled={loading || !userId}
-          sx={{
-            backgroundColor: '#CFB523',
-            color: 'white',
             borderRadius: '8px',
             '& .MuiInputBase-input': {
               color: '#606060',
@@ -185,8 +253,111 @@ const BarsEventsPhoto = () => {
               borderColor: '#303030',
             },
           }}
+        />
+
+        <div style={{ marginBottom: '20px', width: '100%', alignItems: 'center' }}>
+          <Autocomplete
+            options={state.users}
+            getOptionLabel={(option) => option.handle}
+            value={selectedUser}
+            onChange={(event, newValue) => {
+              setSelectedUser(newValue); // Actualiza el usuario seleccionado
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Search Users by Handle"
+                variant="filled"
+                sx={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: '8px',
+                  marginLeft: '18px',
+                  width: '80%', // Establece el ancho al 60%
+                  float: 'left',
+                  mt: 2,
+                  '& .MuiInputBase-input': {
+                    color: '#606060',
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#787878',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: '#787878',
+                  },
+                  '& .MuiFilledInput-root': {
+                    borderRadius: '8px',
+                    backgroundColor: '#D9D9D9',
+                  },
+                  '& .MuiFilledInput-root:before': {
+                    borderColor: '#303030',
+                  },
+                  '& .MuiFilledInput-root:hover:before': {
+                    borderColor: '#303030',
+                  },
+                  '& .MuiFilledInput-root:after': {
+                    borderColor: '#303030',
+                  },
+                }}
+              />
+            )}
+          />
+          <Button
+            variant="contained"
+            onClick={handleAddUser} // Maneja la selección de usuarios
+            sx={{
+              marginLeft: '12px',
+              mt: 3.2,
+              backgroundColor: '#CFB523',
+              width: '30px', // Establece el ancho al 30%
+              height: '100%', // Asegúrate de que la altura del botón sea igual al TextField
+              float: 'center', // Flota a la derecha
+              '&:hover': {
+                backgroundColor: '#B9A21C',
+              },
+            }}
+          >
+            +
+          </Button>
+          <div style={{ clear: 'both' }} /> {/* Asegura que los elementos floten correctamente */}
+        </div>
+
+        {/* Mostrar usuarios seleccionados */}
+        {selectedUsers.length > 0 && (
+          <Box sx={{ marginBottom: '20px' }}>
+            <Typography variant="h6">Selected Users:</Typography>
+            {selectedUsers.map(user => (
+              <Box key={user.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#606060', marginBottom: '5px' }}>
+                <Typography>{user.handle}</Typography>
+                <Button
+                  onClick={() => {
+                    // Elimina el usuario de la selección
+                    setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
+                  }}
+                  sx={{
+                    color: 'red', // Cambia el color del texto del botón
+                    minWidth: '30px', // Establece un ancho mínimo para el botón
+                    padding: 0, // Elimina el padding
+                  }}
+                >
+                  X
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          sx={{
+            backgroundColor: '#CFB523',
+            '&:hover': {
+              backgroundColor: '#B9A21C',
+            },
+          }}
         >
-          {loading ? <CircularProgress size={24} /> : 'Submit Photo'}
+          {loading ? <CircularProgress size={24} /> : 'Submit photo'}
         </Button>
       </form>
 

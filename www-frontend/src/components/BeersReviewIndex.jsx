@@ -57,6 +57,13 @@ const BeersReviewIndex = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchReviews = async () => {
       dispatch({ type: actions.SET_LOADING });
 
