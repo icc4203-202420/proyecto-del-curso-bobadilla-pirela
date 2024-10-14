@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -19,16 +19,31 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  const isMounted = useRef(false);
+
   useEffect(() => {
+    isMounted.current = true;
+
     const token = localStorage.getItem('token');
     if (token) {
-      router.push('/home'); // Reemplazado por router.push
+      // Uso de un setTimeout para garantizar que el componente esté montado
+      const timer = setTimeout(() => {
+        if (isMounted.current) {
+          router.push('/');
+        }
+      }, 100); // Ajusta el tiempo según sea necesario
+
+      return () => clearTimeout(timer);
     }
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [router]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await fetch('api/api/v1/login', {
+      const response = await fetch('http://127.0.0.1:3001/api/v1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +63,7 @@ export default function Login() {
         localStorage.setItem('token', token);
         const user_id = data.status.data.user.id;
         localStorage.setItem('user_id', user_id);
-        router.push('/home'); // Reemplazado por router.push
+        router.push('/');
       } else if (response.status === 401) {
         setServerError('Correo electrónico o contraseña incorrectos.');
       } else {
@@ -97,7 +112,7 @@ export default function Login() {
 
             <Text style={styles.orText}>OR</Text>
 
-            <Button onPress={() => router.push('/signup')} title="Sign Up for Free" color="#CFB523" /> {/* Reemplazado por router.push */}
+            <Button onPress={() => router.push('/signup')} title="Sign Up for Free" color="#CFB523" />
           </>
         )}
       </Formik>

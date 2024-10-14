@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Home = () => {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token); // Establecer el estado según la existencia del token
+  }, []);
+
+  const handleLogout = () => {
+    // Eliminar el token de localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    // Redirigir a la página de inicio de sesión
+    router.push('/login');
+  };
+
+  const handleLogin = () => {
+    // Redirigir a la página de inicio de sesión
+    router.push('/login');
+  };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={isLoggedIn ? handleLogout : handleLogin}
+      >
+        <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Log Out' : 'Log In'}</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.card}
         onPress={() => router.push('/bars')}
@@ -76,6 +102,19 @@ const styles = StyleSheet.create({
   image: {
     width: 80,
     height: 80,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#CFB523', // Amarillo
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1, // Asegúrate de que el botón esté por encima de otros componentes
+  },
+  logoutButtonText: {
+    color: 'white', // Texto blanco
+    fontSize: 16,
   },
 });
 
