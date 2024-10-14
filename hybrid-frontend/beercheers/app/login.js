@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet } fr
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const validationSchema = Yup.object({
   email: Yup.string().email('Email no válido').required('El email es requerido'),
@@ -18,32 +19,28 @@ export default function Login() {
   const [serverError, setServerError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
   const isMounted = useRef(false);
 
   useEffect(() => {
     isMounted.current = true;
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token && isMounted.current) {
+        router.push('/');
+      }
+    };
 
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Uso de un setTimeout para garantizar que el componente esté montado
-      const timer = setTimeout(() => {
-        if (isMounted.current) {
-          router.push('/');
-        }
-      }, 100); // Ajusta el tiempo según sea necesario
-
-      return () => clearTimeout(timer);
-    }
-
+    checkToken();
+    
     return () => {
       isMounted.current = false;
     };
   }, [router]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
+    setServerError('');
     try {
-      const response = await fetch('http://127.0.0.1:3001/api/v1/login', {
+      const response = await fetch('http://192.168.4.101:3001/api/v1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,30 +49,31 @@ export default function Login() {
           user: {
             email: values.email,
             password: values.password,
-          },
+          }
         }),
       });
-
-      const data = await response.json();
-
-      if (response.status === 200) {
-        const { token } = data.status;
-        localStorage.setItem('token', token);
-        const user_id = data.status.data.user.id;
-        localStorage.setItem('user_id', user_id);
-        router.push('/');
-      } else if (response.status === 401) {
-        setServerError('Correo electrónico o contraseña incorrectos.');
-      } else {
-        setServerError('Error en el servidor. Intenta nuevamente más tarde.');
+  
+      if (!response.ok) {
+        throw new Error('Error en la respuesta del servidor.');
       }
+  
+      const data = await response.json();
+      if (data.status && data.status.token) {
+        await AsyncStorage.setItem('token', data.status.token);
+        await AsyncStorage.setItem('user_id', `${data.status.data.user.id}`);
+        router.push('/');
+      } else {
+        setServerError('Token no recibido. Por favor intenta nuevamente.');
+      }
+  
     } catch (error) {
-      setServerError('Error en el servidor. Intenta nuevamente más tarde.');
+      console.log('Error en la solicitud:', error);
+      setServerError('Error de conexión.');
     } finally {
       setSubmitting(false);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo_beercheers.png')} style={styles.logo} />

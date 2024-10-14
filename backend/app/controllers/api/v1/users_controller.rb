@@ -17,16 +17,21 @@ class API::V1::UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    @user.push_token = params[:push_token] if params[:push_token].present?
+
     if @user.save
       token = @user.generate_jwt
-      render json: { id: @user.id, token: token }, status: :ok
+      render json: { id: @user.id, token: token, push_token: @user.push_token }, status: :ok
     else
       render json: @user.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    #byebug
+    if params[:push_token].present?
+      @user.push_token = params[:push_token]
+    end
+  
     if @user.update(user_params)
       render :show, status: :ok, location: api_v1_users_path(@user)
     else
@@ -50,7 +55,7 @@ class API::V1::UsersController < ApplicationController
 
   def user_params
     params.fetch(:user, {}).
-        permit(:id, :first_name, :last_name, :email, :age, :handle,
+        permit(:id, :first_name, :last_name, :email, :age, :handle, :push_token
             { address_attributes: [:id, :line1, :line2, :city, :country, :country_id, 
               country_attributes: [:id, :name]],
               reviews_attributes: [:id, :text, :rating, :beer_id, :_destroy]

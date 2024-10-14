@@ -16,7 +16,7 @@ const SignUp = () => {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch('api/api/v1/countries');
+        const response = await fetch('http://192.168.4.101:3001/api/v1/countries');
         const data = await response.json();
         setCountries(data);
       } catch (error) {
@@ -46,7 +46,7 @@ const SignUp = () => {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await fetch('http://127.0.0.1:3001/api/v1/signup', {
+      const response = await fetch('http://192.168.4.101:3001/api/v1/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

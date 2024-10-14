@@ -1,18 +1,32 @@
 class API::V1::SessionsController < Devise::SessionsController
   include ::RackSessionsFix
   respond_to :json
-  private
-  def respond_with(current_user, _opts = {})
-    token = encode_token({ sub: resource.id })
-    render json: {
-      status: { 
-        code: 200, message: 'Logged in successfully.',
-        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] },
-        token: token
-      }
-    }, status: :ok
 
+  # Método para manejar el inicio de sesión
+  def create
+    puts(params)
+    user = User.find_by(email: params[:user][:email])
+
+    # Verificar si se encontró un usuario con ese correo
+    if user && user.valid_password?(params[:user][:password])
+      token = encode_token({ sub: user.id })
+      Rails.logger.debug("Generated token: #{token}")  # Agrega esta línea para depurar
+
+      render json: {
+        status: { 
+          code: 200, message: 'Logged in successfully.',
+          data: { user: UserSerializer.new(user).serializable_hash[:data][:attributes] },
+          token: token
+        }
+      }, status: :ok
+    else
+      Rails.logger.debug("Login2 failed for user: #{params[:user][:email]}")  # Agrega esta línea para depurar
+
+      render json: { status: 401, message: 'Invalid email or password.' }, status: :unauthorized
+    end
   end
+
+  # Método para manejar el cierre de sesión
   def respond_to_on_destroy
     if request.headers['Authorization'].present?
       jwt_payload = JWT.decode(
@@ -23,7 +37,7 @@ class API::V1::SessionsController < Devise::SessionsController
       ).first
       current_user = User.find(jwt_payload['sub'])
     end
-    
+
     if current_user
       render json: {
         status: 200,

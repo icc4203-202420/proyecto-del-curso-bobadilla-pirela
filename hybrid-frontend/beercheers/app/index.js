@@ -2,26 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); // Establecer el estado según la existencia del token
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('token');
+      setIsLoggedIn(!!token); // Establecer el estado según la existencia del token
+    };
+  
+    checkLoginStatus();
   }, []);
 
-  const handleLogout = () => {
-    // Eliminar el token de localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_id');
-    // Redirigir a la página de inicio de sesión
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user_id');
     router.push('/login');
   };
 
   const handleLogin = () => {
-    // Redirigir a la página de inicio de sesión
     router.push('/login');
   };
 
