@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Image, FlatList, Pressable, StyleSheet } from 'react-native';
-import axios from 'axios';
 import { Link } from 'expo-router';
 import { BACKEND_URL } from '@env';
 
@@ -9,13 +8,17 @@ const Beers = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/api/v1/beers`)
-      .then(response => {
-        setBeers(response.data.beers || []);
-      })
-      .catch(error => {
+    const fetchBeers = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/v1/beers`);
+        const data = await response.json();
+        setBeers(data.beers || []);
+      } catch (error) {
         console.error("No se pudieron capturar las beers!", error);
-      });
+      }
+    };
+
+    fetchBeers();
   }, []);
 
   const filteredBeers = beers.filter(beer =>

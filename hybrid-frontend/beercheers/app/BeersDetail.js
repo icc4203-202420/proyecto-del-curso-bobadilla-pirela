@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, Pressable, FlatList } from 'react-native';
-import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { BACKEND_URL } from '@env';
 
@@ -12,15 +11,22 @@ const BeersDetail = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/api/v1/beers/${id}`)
-      .then(response => {
-        setBeer(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
+    const fetchBeerDetails = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/v1/beers/${id}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setBeer(data);
+      } catch (error) {
         console.error('Error fetching beer details:', error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchBeerDetails();
   }, [id]);
 
   if (loading) {
@@ -85,11 +91,11 @@ const BeersDetail = () => {
         </Text>
       </View>
 
-      <Pressable style={styles.button} onPress={() => navigation.navigate('AddRating', { id })}>
+      <Pressable style={styles.button} onPress={() => navigation.navigate('BeersReview', { id })}>
         <Text style={styles.buttonText}>ADD RATING</Text>
       </Pressable>
 
-      <Pressable style={styles.button} onPress={() => navigation.navigate('AllReviews', { id })}>
+      <Pressable style={styles.button} onPress={() => navigation.navigate('BeersReviewIndex', { id })}>
         <Text style={styles.buttonText}>ALL REVIEWS</Text>
       </Pressable>
     </ScrollView>
