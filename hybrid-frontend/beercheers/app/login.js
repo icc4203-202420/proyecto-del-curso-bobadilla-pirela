@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL } from '@env';
 
 const validationSchema = Yup.object({
   email: Yup.string().email('Email no válido').required('El email es requerido'),
@@ -40,7 +41,7 @@ export default function Login() {
   const handleSubmit = async (values, { setSubmitting }) => {
     setServerError('');
     try {
-      const response = await fetch('http://192.168.4.101:3001/api/v1/login', {
+      const response = await fetch(`${BACKEND_URL}/api/v1/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

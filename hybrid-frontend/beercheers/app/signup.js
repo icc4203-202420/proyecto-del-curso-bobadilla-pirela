@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import Visibility from 'react-native-vector-icons/MaterialIcons';
 import main_icon from '../assets/icon_beercheers.png';
+import { BACKEND_URL } from '@env';
 
 const SignUp = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const SignUp = () => {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch('http://192.168.4.101:3001/api/v1/countries');
+        const response = await fetch(`${BACKEND_URL}/api/v1/countries`);
         const data = await response.json();
         setCountries(data);
       } catch (error) {
@@ -46,7 +47,7 @@ const SignUp = () => {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await fetch('http://192.168.4.101:3001/api/v1/signup', {
+      const response = await fetch(`${BACKEND_URL}/api/v1/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
