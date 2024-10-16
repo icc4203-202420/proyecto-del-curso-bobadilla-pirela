@@ -36,7 +36,7 @@ const BeersReview = () => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
-        navigation.navigate('Login');
+        navigation.navigate('login');
       } else {
         setIsAuthenticated(true);
       }
@@ -87,6 +87,10 @@ const BeersReview = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>Back</Text>
+      </Pressable>
+
       <Text style={styles.title}>{beerName}</Text>
 
       {isAuthenticated ? (
@@ -126,7 +130,7 @@ const BeersReview = () => {
                 <Text style={styles.errorText}>{errors.text}</Text>
               )}
 
-              <Pressable role="button" onPress={handleSubmit} style={styles.button}>
+              <Pressable onPress={handleSubmit} style={styles.button}>
                 <Text style={styles.buttonText}>Enviar Reseña</Text>
               </Pressable>
             </>
@@ -134,7 +138,6 @@ const BeersReview = () => {
         </Formik>
       ) : (
         <Pressable
-          role="button"
           onPress={() => navigation.navigate('Login')}
           style={styles.button}
         >
@@ -150,6 +153,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
     backgroundColor: '#303030',
+  },
+  backButton: {
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   title: {
     color: 'white',

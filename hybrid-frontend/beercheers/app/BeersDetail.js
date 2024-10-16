@@ -121,10 +121,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   backButton: {
-    marginBottom: 16,
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
   },
   backButtonText: {
-    color: '#CFB523',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
     fontSize: 18,
   },
   icon: {
