@@ -1,9 +1,11 @@
 import React, { useReducer, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Pressable, Image, Alert } from 'react-native';
 import { Rating } from 'react-native-ratings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
+import { MaterialIcons } from '@expo/vector-icons'; 
 
 const initialState = {
   reviews: [],
@@ -42,8 +44,27 @@ const BeersReviewIndex = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const route = useRoute();
+  const router = useRouter();
   const navigation = useNavigation();
   const { id } = route.params;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+  
+    checkLoginStatus();
+  }, []);
+
+  const handleLogout = async () => {
+    router.push('/');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -120,10 +141,11 @@ const BeersReviewIndex = () => {
         readonly
         imageSize={20}
         style={styles.rating}
+        tintColor={"#404040"}
       />
       <Text style={styles.reviewText}>{item.text}</Text>
       <Text style={styles.userInfo}>
-        <strong>By:</strong> {item.user.handle} on {new Date(item.created_at).toLocaleDateString()}
+        By: <Text style={{ fontWeight: 'bold' }}>{item.user.handle}</Text> on {new Date(item.created_at).toLocaleDateString()}
       </Text>
     </View>
   );
@@ -136,6 +158,13 @@ const BeersReviewIndex = () => {
       
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
       
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={isLoggedIn ? handleLogout : handleLogin}
+      >
+        <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
+      </TouchableOpacity>
+
       <Text style={styles.beerName}>{state.beerName}</Text>
 
       {state.userReview && (
@@ -158,6 +187,32 @@ const BeersReviewIndex = () => {
         initialNumToRender={5}
         contentContainerStyle={styles.reviewList}
       />
+
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+            <Image
+              source={require('../assets/baricon_gray.png')}
+              style={styles.barIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('beers')}>
+            <Image
+              source={require('../assets/searchyellow.png')}
+              style={styles.searchIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => navigation.navigate('BarsIndexMap')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
+        </View>
+      </View>
+
     </View>
   );
 };
@@ -177,11 +232,12 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   icon: {
-    width: 50,
-    height: 50,
+    width: 100,
+    height: 100,
     alignSelf: 'center',
     marginBottom: 10,
   },
@@ -238,6 +294,42 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#303030',
+    borderTopWidth: 2,
+    borderTopColor: '#CFB523',
+    paddingVertical: 10,
+  },
+  bottomNavAction: {
+    alignItems: 'center',
+  },
+  searchIcon: {
+    width: 32,
+    height: 26,
+  },
+  barIcon: {
+    width: 60,
+    height: 26,
   },
 });
 

@@ -1,14 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, Pressable, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, Pressable, FlatList } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { BACKEND_URL } from '@env';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BeersDetail = () => {
   const [beer, setBeer] = useState(null);
   const [loading, setLoading] = useState(true);
   const route = useRoute();
+  const router = useRouter();
   const { id } = route.params;
   const navigation = useNavigation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+  
+    checkLoginStatus();
+  }, []);
+
+  const handleLogout = async () => {
+    router.push('/');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
 
   useEffect(() => {
     const fetchBeerDetails = async () => {
@@ -43,11 +65,19 @@ const BeersDetail = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
+      <Pressable onPress={() => navigation.navigate('beers')} style={styles.backButton}>
         <Text style={styles.backButtonText}>Back</Text>
       </Pressable>
 
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={isLoggedIn ? handleLogout : handleLogin}
+      >
+        <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>{beer.name}</Text>
 
       <View style={styles.detailContainer}>
@@ -98,6 +128,32 @@ const BeersDetail = () => {
       <Pressable style={styles.button} onPress={() => navigation.navigate('BeersReviewIndex', { id })}>
         <Text style={styles.buttonText}>ALL REVIEWS</Text>
       </Pressable>
+
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+            <Image
+              source={require('../assets/baricon_gray.png')}
+              style={styles.barIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('beers')}>
+            <Image
+              source={require('../assets/searchyellow.png')}
+              style={styles.searchIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => navigation.navigate('BarsIndexMap')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
+        </View>
+      </View>
+
     </ScrollView>
   );
 };
@@ -130,7 +186,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 16,
   },
   icon: {
     width: 100,
@@ -201,6 +257,43 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  bottomNavContainer: {
+    position: 'bottom',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#303030',
+    borderTopWidth: 2,
+    borderTopColor: '#CFB523',
+    paddingVertical: 10,
+    marginTop: 20,
+  },
+  bottomNavAction: {
+    alignItems: 'center',
+  },
+  searchIcon: {
+    width: 32,
+    height: 26,
+  },
+  barIcon: {
+    width: 60,
+    height: 26,
+  },
+	logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

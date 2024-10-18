@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '@env';
+import { useNavigation } from '@react-navigation/native';
 
 const validationSchema = Yup.object({
   email: Yup.string().email('Email no válido').required('El email es requerido'),
@@ -69,7 +70,7 @@ export default function Login() {
   
     } catch (error) {
       console.log('Error en la solicitud:', error);
-      setServerError('Error de conexión.');
+      setServerError('Error al iniciar sesión.');
     } finally {
       setSubmitting(false);
     }
@@ -81,9 +82,13 @@ export default function Login() {
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
         {({ handleChange, handleSubmit, values, errors, touched, isSubmitting }) => (
           <>
+          <TouchableOpacity style={styles.closeButton} onPress={() => router.push('/')}>
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
             <TextInput
               style={styles.input}
               placeholder="Email"
+              placeholderTextColor="#606060"
               onChangeText={handleChange('email')}
               value={values.email}
               keyboardType="email-address"
@@ -94,6 +99,7 @@ export default function Login() {
             <TextInput
               style={styles.input}
               placeholder="Password"
+              placeholderTextColor="#606060"
               onChangeText={handleChange('password')}
               value={values.password}
               secureTextEntry={!showPassword}
@@ -156,5 +162,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     textAlign: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: '#FFF',
   },
 });

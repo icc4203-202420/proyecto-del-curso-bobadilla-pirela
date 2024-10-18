@@ -1,11 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Image, FlatList, Pressable, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, TextInput, Image, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Beers = () => {
   const [beers, setBeers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+  
+    checkLoginStatus();
+  }, []);
+
+  const handleLogout = async () => {
+    router.push('/');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
 
   useEffect(() => {
     const fetchBeers = async () => {
@@ -37,6 +60,14 @@ const Beers = () => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
+
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={isLoggedIn ? handleLogout : handleLogin}
+      >
+        <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Find your favorite beer</Text>
 
       <TextInput
@@ -52,6 +83,31 @@ const Beers = () => {
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.list}
       />
+
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+            <Image
+              source={require('../assets/baricon_gray.png')}
+              style={styles.barIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => navigation.navigate('beers')}>
+            <Image
+              source={require('../assets/searchyellow.png')}
+              style={styles.searchIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => navigation.navigate('BarsIndexMap')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
+        </View>
+      </View>
     </View>
   );
 };
@@ -102,6 +158,42 @@ const styles = StyleSheet.create({
   beerStyle: {
     color: '#FFD700',
     fontSize: 14,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#303030',
+    borderTopWidth: 2,
+    borderTopColor: '#CFB523',
+    paddingVertical: 10,
+  },
+  bottomNavAction: {
+    alignItems: 'center',
+  },
+  searchIcon: {
+    width: 32,
+    height: 26,
+  },
+  barIcon: {
+    width: 60,
+    height: 26,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

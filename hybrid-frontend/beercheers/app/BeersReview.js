@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   title: {
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,
-    color: 'white',
+    color: '#000000',
     backgroundColor: '#D9D9D9',
     marginBottom: 16,
   },
@@ -217,6 +218,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+
 });
 
 export default BeersReview;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
@@ -42,7 +43,7 @@ const Home = () => {
       >
         <Image
           source={require('../assets/baricon_gray.png')}
-          style={styles.image}
+          style={styles.image2}
         />
         <Text style={styles.text}>Bars</Text>
       </TouchableOpacity>
@@ -60,15 +61,15 @@ const Home = () => {
 
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push('/bars-index-map')}
+        onPress={() => router.push('/BarsIndexMap')}
       >
-        <Icon name="ios-map" size={100} color="#E3E5AF" />
+        <Icon name="map" size={100} color="#E3E5AF" />
         <Text style={styles.text}>Map</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push('/search-users')}
+        onPress={() => router.push('/SearchUsers')}
       >
         <Icon name="person" size={100} color="#E3E5AF" />
         <Text style={styles.text}>User</Text>
@@ -105,17 +106,21 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
+  image2: {
+    width: 140,
+    height: 80,
+  },
   logoutButton: {
     position: 'absolute',
     top: 40,
     right: 20,
-    backgroundColor: '#CFB523', // Amarillo
+    backgroundColor: '#CFB523', 
     padding: 10,
     borderRadius: 5,
-    zIndex: 1, // Asegúrate de que el botón esté por encima de otros componentes
+    zIndex: 1,
   },
   logoutButtonText: {
-    color: 'white', // Texto blanco
+    color: 'white',
     fontSize: 16,
   },
 });
