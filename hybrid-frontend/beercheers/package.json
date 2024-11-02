@@ -11,7 +11,9 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/slider": "^4.5.4",
-    "@react-native-picker/picker": "^2.8.1",
+    "@react-native-firebase/app": "^21.3.0",
+    "@react-native-firebase/messaging": "^21.3.0",
+    "@react-native-picker/picker": "2.7.5",
     "@react-navigation/native": "^6.1.18",
     "@rneui/themed": "^4.0.0-rc.8",
     "axios": "^1.7.7",
