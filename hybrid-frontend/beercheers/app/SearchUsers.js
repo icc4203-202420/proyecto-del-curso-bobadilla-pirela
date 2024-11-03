@@ -199,7 +199,7 @@ const SearchUsers = () => {
       
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => router.push('/bars')}>
+          <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
             <Image
               source={require('../assets/baricon_gray.png')}
               style={styles.barIcon}

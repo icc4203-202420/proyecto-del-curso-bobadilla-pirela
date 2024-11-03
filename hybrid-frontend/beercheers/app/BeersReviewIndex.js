@@ -190,7 +190,7 @@ const BeersReviewIndex = () => {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+          <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')}>
             <Image
               source={require('../assets/baricon_gray.png')}
               style={styles.barIcon}
