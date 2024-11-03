@@ -40,7 +40,7 @@ const BarsEventsIndex = () => {
   };
 
   const handleEventPress = (eventId) => {
-    navigation.navigate(`EventDetails`, { eventId });
+    navigation.navigate(`BarsEvent`, { barId, eventId });
   };
 
   const handleLogout = async () => {
