@@ -100,7 +100,7 @@ const BarsEventsPhoto = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!state.currentUserId || selectedUsers.length === 0) { // Verifica que haya usuarios seleccionados
+    if (!state.currentUserId || selectedUsers.length === 0) {
       return;
     }
 

@@ -5,6 +5,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '@env';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { Link, useRouter } from 'expo-router';
 
 function BarsEvent() {
@@ -157,10 +158,9 @@ function BarsEvent() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Pressable onPress={() => navigation.navigate('BarsEventsIndex', { id })} style={styles.backButton}>
-      <Text style={styles.backText}>{"<"}</Text>
-      </Pressable>
-
+      <TouchableOpacity onPress={() => navigation.navigate('BarsEventsIndex', { id })} style={styles.backButton}>
+        <Icon name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
 
       <TouchableOpacity
@@ -238,13 +238,13 @@ function BarsEvent() {
             <Button
               title="ADD PHOTO"
               color="#CFB523"
-              onPress={() => navigation.navigate('BarsEventsPhoto', { id })}
+              onPress={() => navigation.navigate('BarsEventsPhoto', { barId, id })}
             />
 
             <Button
               title="ALL PHOTOS"
               color="#303030"
-              onPress={() => navigation.navigate('BarsEventsPhotoIndex', { id })}
+              onPress={() => navigation.navigate('BarsEventsPhotoIndex', { barId, id })}
               style={styles.allPhotosButton}
             />
           </View>

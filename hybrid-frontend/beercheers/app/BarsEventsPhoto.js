@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, FlatList, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, Button, FlatList, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons'; 
@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Link, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import { BACKEND_URL } from '@env';
 
 const initialState = {
   users: [],
@@ -41,15 +43,17 @@ const BarsEventsPhoto = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const router = useRouter();
-  const { barId, eventId } = route.params;
+  const { barId, id } = route.params;
   const { eventName } = route.params;
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [picture, setPicture] = useState(null);
+	const [errors, setErrors] = useState({})
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -79,63 +83,84 @@ const BarsEventsPhoto = () => {
     router.push('/login');
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      dispatch({ type: actions.SET_LOADING });
 
+	const handleDescriptionChange= async (text) => {
+		setDescription(text)
+	};
+	useEffect(() => {
+    const fetchUsers = async () => {
       try {
-        const token = AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token');
         const response = await axios.get(`${BACKEND_URL}/api/v1/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.data.current_user && response.data.users) {
-          const loggedInUserId = response.data.current_user.id;
-          const allUsers = response.data.users;
-          const filteredUsers = allUsers.filter(user => user.id !== loggedInUserId);
 
-          dispatch({ type: actions.SET_USERS, payload: filteredUsers });
-          dispatch({ type: actions.SET_CURRENT_USER_ID, payload: loggedInUserId });
-        } else {
-          throw new Error('Invalid response structure');
+        if (response.data.users) {
+          setUsers(response.data.users);
         }
       } catch (error) {
-        dispatch({ type: actions.SET_ERROR, payload: error.message });
+        console.error('Error fetching users:', error);
       }
     };
 
     fetchUsers();
   }, []);
 
-  const handleDescriptionChange = (text) => {
-    setDescription(text);
+  const filteredUsers = users.filter(user => user.handle.toLowerCase().includes(selectedUser.toLowerCase()));
+
+  const handleAddUser = (user) => {
+    if (!selectedUsers.some(selected => selected.id === user.id)) {
+      setSelectedUsers([...selectedUsers, user]);
+      setSelectedUser('');
+    } else {
+      setErrors({ user: 'User already added' });
+    }
+  };
+
+	const handleRemoveUser = (userId) => {
+    setSelectedUsers((prevSelectedUsers) => 
+      prevSelectedUsers.filter(user => user.id !== userId)
+    );
   };
 
   const handleSubmit = async () => {
-    if (!state.currentUserId || selectedUsers.length === 0) {
-      Alert.alert('Error', 'Please select users and provide a picture.');
+		let validationErrors = {};
+    if (!picture) {
+      validationErrors.picture = 'Please select a picture.';
+      return;
+    }
+    
+    if (selectedUsers.length === 0) {
+      validationErrors.users = 'Please select at least one user.';
+      return;
+    }
+
+		if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     setLoading(true);
-    
+		setErrors({});
+
     const formData = new FormData();
     formData.append('event_picture[picture]', {
       uri: picture.uri,
-      name: picture.name,
-      type: picture.type,
+      name: picture.name || 'photo.jpg',
+      type: picture.type || 'image/jpeg',
     });
     formData.append('event_picture[description]', description);
-    formData.append('event_picture[event_id]', eventId);
-    
+    formData.append('event_picture[event_id]', id);
+
     selectedUsers.forEach(user => {
       formData.append('event_picture[user_ids][]', user.id);
     });
 
     try {
-      const token = AsyncStorage.getItem('token');
-      const response = await axios.post(`${BACKEND_URL}/api/api/v1/events/${eventId}/event_pictures`, formData, {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.post(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -145,19 +170,9 @@ const BarsEventsPhoto = () => {
       navigation.navigate(`BarsEventsIndex?id=${barId}`);
     } catch (error) {
       console.error('Error uploading picture:', error);
-      Alert.alert('Error', 'Error uploading picture.');
+      setErrors({ submit: 'Error uploading picture.' });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const filteredUsers = state.users.filter(user => user.handle.toLowerCase().includes(selectedUser.toLowerCase()));
-
-  const handleAddUser = () => {
-    const user = state.users.find(u => u.handle === selectedUser);
-    if (user && !selectedUsers.some(selected => selected.id === user.id)) {
-      setSelectedUsers([...selectedUsers, user]);
-      setSelectedUser('');
     }
   };
 
@@ -165,25 +180,36 @@ const BarsEventsPhoto = () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
     if (permissionResult.granted === false) {
-      alert("Se necesitan permisos para acceder a la galería");
+      setErrors({ upload: 'Se necesitan permisos para acceder a la galería' });
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setPicture(result.assets[0]);
-    }
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [4, 3],
+			quality: 1,
+		});
+	
+		if (!result.canceled) {
+			const manipulatedImage = await ImageManipulator.manipulateAsync(
+				result.assets[0].uri,
+				[],
+				{ compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+			);
+	
+			setPicture({
+				uri: manipulatedImage.uri,
+				name: 'photo.jpg',
+				type: 'image/jpeg',
+			});
+			setErrors({});
+		}
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate(`BarsEventsIndex?id=${barId}`)} style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
 
@@ -209,6 +235,8 @@ const BarsEventsPhoto = () => {
 					)}
 				</View>
 			</TouchableOpacity>
+			{errors.upload && <Text style={styles.errorText}>{errors.upload}</Text>}
+			{errors.picture && <Text style={styles.errorText}>{errors.picture}</Text>}
 
       <TextInput
         style={styles.descriptionInput}
@@ -218,7 +246,7 @@ const BarsEventsPhoto = () => {
         onChangeText={handleDescriptionChange}
       />
 
-      <TextInput
+			<TextInput
         style={styles.autocompleteInput}
         placeholder="Search Users by Handle"
         value={selectedUser}
@@ -227,45 +255,40 @@ const BarsEventsPhoto = () => {
 
       {filteredUsers.length > 0 && (
         <FlatList
-        data={filteredUsers}
-        keyExtractor={user => user.id.toString()}
-        renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => {
-            setSelectedUser(item.handle);
-            handleAddUser();
-            }}>
-            <Text style={styles.userItem}>{item.handle}</Text>
+          data={filteredUsers}
+          keyExtractor={user => user.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleAddUser(item)}>
+              <Text style={styles.userItem}>{item.handle}</Text>
             </TouchableOpacity>
-        )}
-        style={styles.userList}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        showsVerticalScrollIndicator={false} 
+          )}
+          style={styles.userList}
+          contentContainerStyle={{ paddingBottom: 16 }}
+          showsVerticalScrollIndicator={false}
         />
       )}
 
-      <TouchableOpacity style={styles.addButton} onPress={handleAddUser}>
-        <Text style={styles.addButtonText}>Add User</Text>
-      </TouchableOpacity>
-
-      {selectedUsers.length > 0 && (
-        <View style={styles.selectedUsers}>
-          <Text style={styles.selectedUsersTitle}>Selected Users:</Text>
-          {selectedUsers.map(user => (
-            <View key={user.id} style={styles.selectedUser}>
-              <Text>{user.handle}</Text>
-              <TouchableOpacity onPress={() => {
-                setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
-              }}>
-                <Text style={styles.removeUser}>X</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      )}
+      <View style={{ marginTop: 20 }}>
+        <Text style={styles.selectedTitle}>Selected Users:</Text>
+        {selectedUsers.map(user => (
+          <View key={user.id} style={styles.selectedUserContainer}>
+            <Text>{user.handle}</Text>
+            <TouchableOpacity
+							style={styles.removeButton}
+							onPress={() => handleRemoveUser(user.id)}
+						>
+							<Text style={styles.removeButtonText}>Remove</Text>
+						</TouchableOpacity>
+					</View>
+        ))}
+      </View>
+			{errors.users && <Text style={styles.errorText}>{errors.users}</Text>}
+      {errors.user && <Text style={styles.errorText}>{errors.user}</Text>}
 
       <TouchableOpacity onPress={handleSubmit} style={styles.submitButton} disabled={loading}>
         {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit photo</Text>}
       </TouchableOpacity>
+			{errors.submit && <Text style={styles.errorText}>{errors.submit}</Text>}
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
@@ -317,6 +340,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
   },
+	errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   uploadButton: {
     width: 100,
     height: 100,
@@ -334,6 +362,26 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 8,
+  },
+	selectedTitle: {
+    color: '#303030',
+    backgroundColor: '#CFB523',
+    textAlign: 'center',
+    marginTop: 16,
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: 30,
+    borderRadius: 8,
+    padding: 5,
+  },
+	removeButton: {
+    backgroundColor: 'red',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+  },
+  removeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   uploadText: {
     fontSize: 24,
@@ -363,25 +411,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
-  selectedUsers: {
+  autocompleteInput: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    padding: 10,
     marginBottom: 16,
   },
-  selectedUsersTitle: {
-    color: '#606060',
-    fontSize: 18,
-    marginBottom: 8,
+  userItem: {
+    padding: 16,
+    backgroundColor: '#e0e0e0',
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
   },
-  selectedUser: {
+  userList: {
+    maxHeight: 200,
+  },
+  selectedUserContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 8,
-    marginBottom: 8,
-  },
-  removeUser: {
-    color: 'red',
+    padding: 10,
+    backgroundColor: '#d0ffd0',
+    marginVertical: 5,
   },
   submitButton: {
     backgroundColor: '#CFB523',
