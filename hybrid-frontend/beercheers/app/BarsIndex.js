@@ -18,7 +18,7 @@ const BarsIndex = () => {
         const data = await response.json();
         setBars(data.bars || []);
       } catch (error) {
-        console.error("No se pudieron capturar los bars!", error);
+        console.error("No se pudieron capturar los bares!", error);
       }
     };
 
@@ -74,7 +74,7 @@ const BarsIndex = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.listItem}
-            onPress={() => navigation.navigate('BarEvents', { barId: item.id })}
+            onPress={() => navigation.navigate('BarsEventsIndex', { barId: item.id })}
           >
             <View style={styles.textContainer}>
               <Text style={styles.barName}>{item.name}</Text>
