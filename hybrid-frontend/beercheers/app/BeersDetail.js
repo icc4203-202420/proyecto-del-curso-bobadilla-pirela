@@ -66,7 +66,7 @@ const BeersDetail = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => navigation.navigate('beers')} style={styles.backButton}>
-        <Text style={styles.backButtonText}>Back</Text>
+        <Text style={styles.backText}>{"<"}</Text>
       </Pressable>
 
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
@@ -177,11 +177,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   backButton: {
-    backgroundColor: '#CFB523',
     padding: 10,
-    borderRadius: 5,
-    alignSelf: 'flex-start',
-    marginBottom: 10,
+  },
+  backText: {
+    color: 'white',
+    fontSize: 24,
   },
   backButtonText: {
     color: '#FFFFFF',
