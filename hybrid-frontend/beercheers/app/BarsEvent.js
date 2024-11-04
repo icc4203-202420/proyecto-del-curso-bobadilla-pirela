@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '@env';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Link, useRouter } from 'expo-router';
+import { saveItem, getItem } from '../Storage';
 
 function BarsEvent() {
   const route = useRoute();
@@ -25,7 +26,8 @@ function BarsEvent() {
 
   useEffect(() => {
     const fetchToken = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) {
         navigation.navigate('/login');
       }
@@ -36,7 +38,8 @@ function BarsEvent() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
     };
   
@@ -53,7 +56,8 @@ function BarsEvent() {
 
   useEffect(() => {
     const fetchCurrentUserId = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) {
         navigation.navigate('login');
         return;
@@ -69,6 +73,7 @@ function BarsEvent() {
         });
         const data = await response.json();
         setCurrentUserId(data.current_user.id);
+
       } catch (error) {
         console.error('Error fetching user data', error);
       }
@@ -79,7 +84,8 @@ function BarsEvent() {
 
   useEffect(() => {
     const fetchEventData = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) return;
 
       try {
@@ -97,6 +103,13 @@ function BarsEvent() {
         });
         const attendeesData = await attendeesResponse.json();
         setAttendees(attendeesData);
+        const isUserCheckedIn = attendeesData.some(attendee => attendee.id === currentUserId);
+        if (isUserCheckedIn) {
+          setIsCheckedIn(true);  // Estado de check-in en la app
+          await AsyncStorage.setItem(`checkInStatus_${id}`, 'true');  // Guarda en almacenamiento local
+        } else {
+          await AsyncStorage.removeItem(`checkInStatus_${id}`);  // Limpia el estado si no está registrado
+        }
       } catch (error) {
         console.error('Error fetching event or bar data', error);
       }
@@ -106,7 +119,8 @@ function BarsEvent() {
   }, [id, barId, currentUserId]);
 
   const handleCheckIn = async () => {
-    const token = await AsyncStorage.getItem('token');
+    const storedToken = await getItem('authToken');
+    const token = storedToken ? storedToken.replace(/"/g, '') : null;
     if (!token) return;
 
     try {
@@ -132,7 +146,8 @@ function BarsEvent() {
   };
 
   const handleCancelAttendance = async () => {
-    const token = await AsyncStorage.getItem('token');
+    const storedToken = await getItem('authToken');
+    const token = storedToken ? storedToken.replace(/"/g, '') : null;
     if (!token) return;
 
     try {
@@ -157,7 +172,8 @@ function BarsEvent() {
   };
 
   const fetchAttendees = async () => {
-    const token = await AsyncStorage.getItem('token');
+    const storedToken = await getItem('authToken');
+    const token = storedToken ? storedToken.replace(/"/g, '') : null;
     if (!token) return;
 
     try {
@@ -273,7 +289,7 @@ function BarsEvent() {
 
         <Button
           title="ALL PHOTOS"
-          color="#303030"
+          color="#fff"
           onPress={() => navigation.navigate('BarsEventsPhotoIndex', { barId, id })}
           style={styles.allPhotosButton}
         />

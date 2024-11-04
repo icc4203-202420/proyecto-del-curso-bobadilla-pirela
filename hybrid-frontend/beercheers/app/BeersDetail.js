@@ -4,7 +4,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { BACKEND_URL } from '@env';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveItem, getItem } from '../Storage';
 
 const BeersDetail = () => {
   const [beer, setBeer] = useState(null);
@@ -17,7 +17,8 @@ const BeersDetail = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
     };
   

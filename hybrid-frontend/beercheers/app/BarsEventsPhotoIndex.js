@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { BACKEND_URL } from '@env';
+import { saveItem, getItem } from '../Storage';
 
 const BarsEventsPhotoIndex = () => {
   const route = useRoute();
@@ -16,7 +17,8 @@ const BarsEventsPhotoIndex = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
       if (!token) {
         navigation.navigate('login');
@@ -38,7 +40,8 @@ const BarsEventsPhotoIndex = () => {
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const storedToken = await getItem('authToken');
+        const token = storedToken ? storedToken.replace(/"/g, '') : null;
         const response = await axios.get(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, {
           headers: {
             'Content-Type': 'application/json',
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
   },
   taggedUsers: {
-    color: '#303030',
+    color: 'white',
     textAlign: 'center',
   },
   userHandles: {

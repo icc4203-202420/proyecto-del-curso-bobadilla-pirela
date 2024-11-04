@@ -65,7 +65,7 @@ const BarsEventsPhoto = () => {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/api/api/v1/users', {
+        const response = await axios.get('http://localhost:3000/api/v1/users', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -118,7 +118,7 @@ const BarsEventsPhoto = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(`http://localhost:3000/api/api/v1/events/${eventId}/event_pictures`, formData, {
+      const response = await axios.post(`http://localhost:3000/api/v1/events/${eventId}/event_pictures`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,

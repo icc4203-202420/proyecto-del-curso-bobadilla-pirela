@@ -34,12 +34,12 @@ function BarsEvent() {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.get('http://localhost:3000/api/api/v1/users', {
+          const response = await axios.get('http://localhost:3000/api/v1/users', {
             headers: { Authorization: `Bearer ${token}` }
           });
           setCurrentUserId(response.data.current_user.id);
 
-          const attendanceResponse = await axios.get(`http://localhost:3000/api/api/v1/events/${id}/attendance`, {
+          const attendanceResponse = await axios.get(`http://localhost:3000/api/v1/events/${id}/attendance`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setIsCheckedIn(attendanceResponse.data.checked_in);
@@ -64,12 +64,12 @@ function BarsEvent() {
       }
 
       try {
-        const eventResponse = await axios.get(`http://localhost:3000/api/api/v1/bars/${barId}/events/${id}`);
+        const eventResponse = await axios.get(`http://localhost:3000/api/v1/bars/${barId}/events/${id}`);
         const { event, bar } = eventResponse.data;
         setEvent(event);
         setBar(bar);
 
-        const attendeesResponse = await axios.get(`http://localhost:3000/api/api/v1/events/${id}/attendees`, {
+        const attendeesResponse = await axios.get(`http://localhost:3000/api/v1/events/${id}/attendees`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log('Attendees:', attendeesResponse.data);
@@ -90,12 +90,12 @@ function BarsEvent() {
     }
 
     try {
-      await axios.post(`http://localhost:3000/api/api/v1/events/${id}/attendance`, null, {
+      await axios.post(`http://localhost:3000/api/v1/events/${id}/attendance`, null, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsCheckedIn(true);
 
-      const response = await axios.get(`http://localhost:3000/api/api/v1/events/${id}/attendees`, {
+      const response = await axios.get(`http://localhost:3000/api/v1/events/${id}/attendees`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAttendees(response.data);
@@ -119,13 +119,13 @@ function BarsEvent() {
     }
 
     try {
-      await axios.delete(`http://localhost:3000/api/api/v1/events/${id}/attendance`, {
+      await axios.delete(`http://localhost:3000/api/v1/events/${id}/attendance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsCheckedIn(false);
 
       // Update attendees list
-      const response = await axios.get(`http://localhost:3000/api/api/v1/events/${id}/attendees`, {
+      const response = await axios.get(`http://localhost:3000/api/v1/events/${id}/attendees`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAttendees(response.data);

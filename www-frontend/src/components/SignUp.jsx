@@ -36,7 +36,7 @@ function SignUp() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios.post('/api/api/v1/signup', {
+      const response = await axios.post('http://localhost:3000/api/v1/signup', {
         user: {
           first_name: values.first_name,
           last_name: values.last_name,
@@ -60,7 +60,7 @@ function SignUp() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get('api/api/v1/countries');
+        const response = await axios.get('http://localhost:3000/api/v1/countries');
         setCountries(response.data);
       } catch (error) {
         console.error('Error fetching countries:', error);
@@ -270,7 +270,7 @@ function SignUp() {
                     <MenuItem value="">
                       <em>Select a country</em>
                     </MenuItem>
-                    {countries.length > 0 && countries.map((country) => (
+                    { Array.isArray(countries) && countries.length > 0 && countries.map((country) => (
                       <MenuItem key={country.id} value={country.id}>
                         {country.name}
                       </MenuItem>

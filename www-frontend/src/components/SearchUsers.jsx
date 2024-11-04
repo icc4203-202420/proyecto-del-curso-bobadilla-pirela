@@ -77,7 +77,7 @@ const SearchUsers = () => {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/api/api/v1/users', {
+        const response = await axios.get('http://localhost:3000/api/v1/users', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -91,7 +91,7 @@ const SearchUsers = () => {
           dispatch({ type: actions.SET_USERS, payload: filteredUsers });
           dispatch({ type: actions.SET_CURRENT_USER_ID, payload: loggedInUserId });
           
-          const friendshipsResponse = await axios.get(`http://localhost:3000/api/api/v1/users/${loggedInUserId}/friendships`, {
+          const friendshipsResponse = await axios.get(`http://localhost:3000/api/v1/users/${loggedInUserId}/friendships`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -110,7 +110,7 @@ const SearchUsers = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/api/v1/bars')
+    axios.get('http://localhost:3000/api/v1/bars')
       .then(response => {
         setBars(response.data.bars || []);
       })
@@ -128,7 +128,7 @@ const SearchUsers = () => {
     
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/api/v1/users/${state.currentUserId}/friendships`,
+        `http://localhost:3000/api/v1/users/${state.currentUserId}/friendships`,
         { friendship: { friend_id: userId, bar_id: selectedBar ? selectedBar.id : null } },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -144,7 +144,7 @@ const SearchUsers = () => {
     
     try {
       await axios.delete(
-        `http://localhost:3000/api/api/v1/users/${state.currentUserId}/friendships/${userId}`,
+        `http://localhost:3000/api/v1/users/${state.currentUserId}/friendships/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

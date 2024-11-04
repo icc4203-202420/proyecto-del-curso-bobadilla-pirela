@@ -19,7 +19,7 @@ const BeersDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`http://localhost:3000/api/api/v1/beers/${id}`)
+    axios.get(`http://localhost:3000/api/v1/beers/${id}`)
       .then(response => {
         const beerData = response.data;
         setBeer(beerData);

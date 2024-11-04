@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getItem, deleteItem } from '../Storage';
 
 const Home = () => {
   const router = useRouter();
@@ -11,7 +10,8 @@ const Home = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token); // Establecer el estado según la existencia del token
     };
   
@@ -19,8 +19,8 @@ const Home = () => {
   }, []);
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('user_id');
+    await deleteItem('authToken');
+    await deleteItem('user_id');
     router.push('/login');
   };
 

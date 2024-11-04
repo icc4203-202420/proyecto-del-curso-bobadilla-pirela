@@ -3,9 +3,8 @@ import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet } fr
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '@env';
-import { useNavigation } from '@react-navigation/native';
+import { saveItem, getItem } from '../Storage';
 
 const validationSchema = Yup.object({
   email: Yup.string().email('Email no válido').required('El email es requerido'),
@@ -26,7 +25,8 @@ export default function Login() {
   useEffect(() => {
     isMounted.current = true;
     const checkToken = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (token && isMounted.current) {
         router.push('/');
       }
@@ -61,8 +61,8 @@ export default function Login() {
   
       const data = await response.json();
       if (data.status && data.status.token) {
-        await AsyncStorage.setItem('token', data.status.token);
-        await AsyncStorage.setItem('user_id', `${data.status.data.user.id}`);
+        await saveItem('authToken', data.status.token);
+        await saveItem('user_id', `${data.status.data.user.id}`);
         router.push('/');
       } else {
         setServerError('Token no recibido. Por favor intenta nuevamente.');

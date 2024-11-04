@@ -57,7 +57,7 @@ const BeersReview = () => {
         return;
       }
       
-      await axios.post(`http://localhost:3000/api/api/v1/beers/${id}/reviews`, {
+      await axios.post(`http://localhost:3000/api/v1/beers/${id}/reviews`, {
         review: {
           rating: values.rating,
           text: values.text,
@@ -76,7 +76,7 @@ const BeersReview = () => {
   };
 
   useEffect(() => {
-    axios.get(`http://localhost:3000/api/api/v1/beers/${id}`)
+    axios.get(`http://localhost:3000/api/v1/beers/${id}`)
       .then(response => {
         console.log(response.data);
         setBeerName(response.data.name || "");

@@ -4,8 +4,8 @@ import { Slider } from '@rneui/themed';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '@env';
+import { saveItem, getItem } from '../Storage';
 
 const reviewSchema = Yup.object().shape({
   rating: Yup.number()
@@ -34,7 +34,8 @@ const BeersReview = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) {
         navigation.navigate('login');
       } else {
@@ -59,7 +60,8 @@ const BeersReview = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       const response = await fetch(`${BACKEND_URL}/api/v1/beers/${id}/reviews`, {
         method: 'POST',
         headers: {

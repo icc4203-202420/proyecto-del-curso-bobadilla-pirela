@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Button, FlatList, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, Platform, FlatList, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Link, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
 import { BACKEND_URL } from '@env';
-
+import { saveItem, getItem } from '../Storage';
 
 const initialState = {
   users: [],
@@ -57,7 +56,8 @@ const BarsEventsPhoto = () => {
 
   useEffect(() => {
     const fetchToken = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) {
         navigation.navigate('/login');
 				setErrors({ submit: 'No se encontró el token de autenticación.' });
@@ -70,7 +70,8 @@ const BarsEventsPhoto = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
     };
   
@@ -94,7 +95,8 @@ const BarsEventsPhoto = () => {
 	useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const storedToken = await getItem('authToken');
+        const token = storedToken ? storedToken.replace(/"/g, '') : null;
         const response = await axios.get(`${BACKEND_URL}/api/v1/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -129,38 +131,42 @@ const BarsEventsPhoto = () => {
     );
   };
 
-  const handleUploadPress = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (permissionResult.granted === false) {
-      setErrors({ upload: 'Se necesitan permisos para acceder a la galería' });
-      return;
+  const pickImage = async () => {
+    if (Platform.OS === 'web') {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.granted === false) {
+        alert("Permission to access gallery is required!");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1], 
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setPicture(result.assets[0].uri); 
+      }
+    } else {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.granted === false) {
+        Alert.alert("Permission to access gallery is required!");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        base64: false,
+      });
+
+      if (!result.canceled) {
+        setPicture(result.assets[0]);
+      }
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true,
-			aspect: [4, 3],
-			quality: 1,
-		});
-	
-		if (!result.canceled) {
-			const uri = result.assets[0].uri;
-
-			const base64 = await fetch(uri)
-					.then(response => response.blob())
-					.then(blob => {
-							return new Promise((resolve, reject) => {
-									const reader = new FileReader();
-									reader.onloadend = () => resolve(reader.result);
-									reader.onerror = reject;
-									reader.readAsDataURL(blob);
-							});
-					});
-
-			setPicture(base64);
-		}
-	};
+  };
 
   const handleSubmit = async () => {
     if (!picture) {
@@ -177,8 +183,20 @@ const BarsEventsPhoto = () => {
 		setErrors({});
 
     const formData = new FormData();
-    const base64Data = picture.split(',')[1];
-		formData.append('event_picture[picture]', base64Data);
+    if (Platform.OS === 'web') {
+      formData.append('event_picture[picture]', picture);
+    } else {
+      const fileUri = picture.uri;
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      const fileBase64 = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      formData.append('event_picture[picture]', {
+        uri: picture.uri,
+        name: picture.uri.split('/').pop(),
+        type: 'image/jpeg',
+      });
+    }
     formData.append('event_picture[description]', description);
     formData.append('event_picture[event_id]', id);
 
@@ -187,8 +205,8 @@ const BarsEventsPhoto = () => {
     });
 
     try {
-			const token = await AsyncStorage.getItem('token');
-			console.log(token)
+			const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
 			if (!token) {
 				setErrors({ submit: 'No se encontró el token de autenticación.' });
 				setLoading(false);
@@ -198,6 +216,7 @@ const BarsEventsPhoto = () => {
 			const response = await fetch(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, {
 				method: 'POST',
 				headers: {
+          'Content-Type': 'multipart/form-data',
 					Authorization: `Bearer ${token}`,
 				},
 				body: formData,
@@ -205,12 +224,13 @@ const BarsEventsPhoto = () => {
 
 			const data = await response.json();
 
-			if (!response.ok) {
-				setErrors({ submit: data.errors?.submit || 'No se pudo subir la imagen.' });
-				setLoading(false);
-				return;
-			}
-			navigation.navigate('BarsEvent', { barId, id });
+			if (response.ok) {
+        console.log("Upload successful:", data);
+        navigation.navigate('BarsEvent', { barId, id });
+      } else {
+        console.error("Error uploading picture:", data);
+      }
+			
 
 		} catch (error) {
 			setErrors({ submit: 'Error uploading picture.' });
@@ -238,13 +258,16 @@ const BarsEventsPhoto = () => {
         {'Add a Photo for this Event'}
       </Text>
 
-      <TouchableOpacity onPress={handleUploadPress}>
+      <TouchableOpacity onPress={pickImage}>
 				<View style={[styles.uploadButton, picture && { backgroundColor: '#CFB523' }]}>
-					{picture ? (
-						<Image source={{ uri: picture }} style={styles.imagePreview} />
-					) : (
-						<Text style={styles.uploadText}>+</Text>
-					)}
+          {picture && Platform.OS === 'web' ? (
+            <Text style={styles.uploadText}>+</Text>
+          ) : picture ? (
+            <Image source={{ uri: picture.uri }} style={styles.imagePreview} />
+          ) : (
+            <Text style={styles.uploadText}>+</Text>
+          )}
+						
 				</View>
 			</TouchableOpacity>
 			{errors.upload && <Text style={styles.errorText}>{errors.upload}</Text>}

@@ -74,7 +74,7 @@ const BeersReviewIndex = () => {
       }
 
       try {
-        const beerResponse = await axios.get(`http://localhost:3000/api/api/v1/beers/${id}`, {
+        const beerResponse = await axios.get(`http://localhost:3000/api/v1/beers/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -82,7 +82,7 @@ const BeersReviewIndex = () => {
 
         dispatch({ type: actions.SET_BEER_NAME, payload: beerResponse.data.name });
 
-        const reviewsResponse = await axios.get(`http://localhost:3000/api/api/v1/beers/${id}/reviews`, {
+        const reviewsResponse = await axios.get(`http://localhost:3000/api/v1/beers/${id}/reviews`, {
           params: { page: state.page },
           headers: {
             Authorization: `Bearer ${token}`

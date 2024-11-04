@@ -1,11 +1,13 @@
 {
   "expo": {
     "scheme": "acme",
+    "icon": "./assets/icon_beercheers.png",
     "web": {
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "name": "beercheers",
     "slug": "beercheers"

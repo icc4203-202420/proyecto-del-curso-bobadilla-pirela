@@ -1,4 +1,5 @@
 class API::V1::EventPicturesController < ApplicationController
+  include ImageProcessing
   before_action :set_event_picture, only: [:show, :update, :destroy]
   before_action :authenticate_user_from_token!
 
@@ -18,8 +19,10 @@ class API::V1::EventPicturesController < ApplicationController
     @event_picture = EventPicture.new(event_picture_params.except(:user_ids).merge(user_id: @current_user.id)) # Excluye user_ids de los parámetros
     puts(2)
     if @event_picture.save
-      params[:event_picture][:user_ids].each do |user_id|
-        EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
+      if params[:event_picture][:user_ids].present?
+        params[:event_picture][:user_ids].each do |user_id|
+          EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
+        end
       end
       render json: @event_picture, status: :created
     else

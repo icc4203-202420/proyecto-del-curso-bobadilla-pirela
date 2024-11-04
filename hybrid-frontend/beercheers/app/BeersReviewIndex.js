@@ -1,11 +1,11 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Pressable, Image, Alert } from 'react-native';
 import { Rating } from 'react-native-ratings';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveItem, getItem } from '../Storage';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons } from '@expo/vector-icons';
 
 const initialState = {
   reviews: [],
@@ -51,7 +51,8 @@ const BeersReviewIndex = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
     };
   
@@ -68,7 +69,8 @@ const BeersReviewIndex = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = await AsyncStorage.getItem('token');
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
       if (!token) {
         navigation.navigate('login'); // Redirigir al login si no está autenticado
       } else {

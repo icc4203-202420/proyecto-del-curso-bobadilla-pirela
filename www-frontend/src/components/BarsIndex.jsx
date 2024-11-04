@@ -15,7 +15,7 @@ function BarsIndex() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/api/v1/bars')
+    axios.get('http://localhost:3000/api/v1/bars')
       .then(response => {
         setBars(response.data.bars || []);
       })

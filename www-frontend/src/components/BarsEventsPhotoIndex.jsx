@@ -26,7 +26,7 @@ const BarsEventsPhotoIndex = () => {
     const fetchPhotos = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:3000/api/api/v1/events/${eventId}/event_pictures`, {
+        const response = await axios.get(`http://localhost:3000/api/v1/events/${eventId}/event_pictures`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,

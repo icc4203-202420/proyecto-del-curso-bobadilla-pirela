@@ -8,7 +8,7 @@ const Logout = () => {
   useEffect(() => {
     const handleLogout = async () => {
       try {
-        await axios.delete('/api/api/v1/logout');
+        await axios.delete('http://localhost:3000/api/v1/logout');
 
         localStorage.removeItem('token');
 

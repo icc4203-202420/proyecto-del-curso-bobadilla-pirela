@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
+import { saveItem, getItem } from '../Storage';
 
 const initialState = {
   users: [],
@@ -65,7 +66,8 @@ const SearchUsers = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
+        const storedToken = await getItem('authToken');
+        const token = storedToken ? storedToken.replace(/"/g, '') : null;
         if (!token) {
           router.push('/login');
           return;
