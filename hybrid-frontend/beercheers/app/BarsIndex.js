@@ -6,7 +6,7 @@ import { Link, useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const bars = () => {
+const BarsIndex = () => {
   const [bars, setBars] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const navigation = useNavigation();
@@ -210,4 +210,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default bars;
+export default BarsIndex;

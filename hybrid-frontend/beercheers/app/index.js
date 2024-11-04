@@ -39,7 +39,7 @@ const Home = () => {
 
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push('/bars')}
+        onPress={() => router.push('/BarsIndex')}
       >
         <Image
           source={require('../assets/baricon_gray.png')}
