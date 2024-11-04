@@ -15,8 +15,8 @@ class API::V1::EventPicturesController < ApplicationController
 
   # POST /api/v1/event_pictures
   def create
-    @event_picture = EventPicture.new(event_picture_params.except(:user_ids).merge(user_id: current_user.id)) # Excluye user_ids de los parámetros
-
+    @event_picture = EventPicture.new(event_picture_params.except(:user_ids).merge(user_id: @current_user.id)) # Excluye user_ids de los parámetros
+    puts(2)
     if @event_picture.save
       params[:event_picture][:user_ids].each do |user_id|
         EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
@@ -67,5 +67,4 @@ class API::V1::EventPicturesController < ApplicationController
       head :unauthorized
     end
   end
-
 end

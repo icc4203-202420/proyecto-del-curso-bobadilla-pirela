@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { BACKEND_URL } from '@env';
 
+
 const initialState = {
   users: [],
   currentUserId: null,
@@ -43,8 +44,7 @@ const BarsEventsPhoto = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const router = useRouter();
-  const { barId, eventId } = route.params;
-  const { eventName } = route.params;
+  const { barId, id } = route.params;
   const [description, setDescription] = useState('');
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -60,6 +60,8 @@ const BarsEventsPhoto = () => {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         navigation.navigate('/login');
+				setErrors({ submit: 'No se encontró el token de autenticación.' });
+  			setLoading(false);
       }
     };
     
@@ -87,6 +89,8 @@ const BarsEventsPhoto = () => {
 	const handleDescriptionChange= async (text) => {
 		setDescription(text)
 	};
+
+
 	useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -125,57 +129,6 @@ const BarsEventsPhoto = () => {
     );
   };
 
-  const handleSubmit = async () => {
-		let validationErrors = {};
-    if (!picture) {
-      validationErrors.picture = 'Please select a picture.';
-      return;
-    }
-    
-    if (selectedUsers.length === 0) {
-      validationErrors.users = 'Please select at least one user.';
-      return;
-    }
-
-		if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setLoading(true);
-		setErrors({});
-
-    const formData = new FormData();
-    formData.append('event_picture[picture]', {
-      uri: picture.uri,
-      name: picture.name || 'photo.jpg',
-      type: picture.type || 'image/jpeg',
-    });
-    formData.append('event_picture[description]', description);
-    formData.append('event_picture[event_id]', eventId);
-
-    selectedUsers.forEach(user => {
-      formData.append('event_picture[user_ids][]', user.id);
-    });
-
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.post(`${BACKEND_URL}/api/v1/events/${eventId}/event_pictures`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(response.data);
-      navigation.navigate(`BarsEventsIndex?id=${barId}`);
-    } catch (error) {
-      console.error('Error uploading picture:', error);
-      setErrors({ submit: 'Error uploading picture.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleUploadPress = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
@@ -192,24 +145,83 @@ const BarsEventsPhoto = () => {
 		});
 	
 		if (!result.canceled) {
-			const manipulatedImage = await ImageManipulator.manipulateAsync(
-				result.assets[0].uri,
-				[],
-				{ compress: 1, format: ImageManipulator.SaveFormat.JPEG }
-			);
-	
-			setPicture({
-				uri: manipulatedImage.uri,
-				name: 'photo.jpg',
-				type: 'image/jpeg',
-			});
-			setErrors({});
+			const uri = result.assets[0].uri;
+
+			const base64 = await fetch(uri)
+					.then(response => response.blob())
+					.then(blob => {
+							return new Promise((resolve, reject) => {
+									const reader = new FileReader();
+									reader.onloadend = () => resolve(reader.result);
+									reader.onerror = reject;
+									reader.readAsDataURL(blob);
+							});
+					});
+
+			setPicture(base64);
 		}
-  };
+	};
+
+  const handleSubmit = async () => {
+    if (!picture) {
+      setErrors({picture: 'Please select a picture.'});
+      return;
+    }
+
+		if (!description) {
+      setErrors({description: 'Please add a description.'});
+      return;
+    }
+
+    setLoading(true);
+		setErrors({});
+
+    const formData = new FormData();
+    const base64Data = picture.split(',')[1];
+		formData.append('event_picture[picture]', base64Data);
+    formData.append('event_picture[description]', description);
+    formData.append('event_picture[event_id]', id);
+
+    selectedUsers.forEach(user => {
+      formData.append('event_picture[user_ids][]', user.id);
+    });
+
+    try {
+			const token = await AsyncStorage.getItem('token');
+			console.log(token)
+			if (!token) {
+				setErrors({ submit: 'No se encontró el token de autenticación.' });
+				setLoading(false);
+				return;
+			}
+			
+			const response = await fetch(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			});
+
+			const data = await response.json();
+
+			if (!response.ok) {
+				setErrors({ submit: data.errors?.submit || 'No se pudo subir la imagen.' });
+				setLoading(false);
+				return;
+			}
+			navigation.navigate('BarsEvent', { barId, id });
+
+		} catch (error) {
+			setErrors({ submit: 'Error uploading picture.' });
+		} finally {
+			setLoading(false);
+		}
+	};
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+    <ScrollView contentContainerStyle={[styles.container, { flexGrow: 1 }]}>
+      <TouchableOpacity onPress={() => navigation.navigate('BarsEvent', {barId, id})} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
 
@@ -223,13 +235,13 @@ const BarsEventsPhoto = () => {
       </TouchableOpacity>
       
       <Text style={styles.title}>
-        {eventName ? eventName : 'Add a Photo for this Event'}
+        {'Add a Photo for this Event'}
       </Text>
 
       <TouchableOpacity onPress={handleUploadPress}>
 				<View style={[styles.uploadButton, picture && { backgroundColor: '#CFB523' }]}>
 					{picture ? (
-						<Image source={{ uri: picture.uri }} style={styles.imagePreview} />
+						<Image source={{ uri: picture }} style={styles.imagePreview} />
 					) : (
 						<Text style={styles.uploadText}>+</Text>
 					)}
@@ -245,6 +257,7 @@ const BarsEventsPhoto = () => {
         value={description}
         onChangeText={handleDescriptionChange}
       />
+			{errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
 
 			<TextInput
         style={styles.autocompleteInput}
@@ -252,7 +265,7 @@ const BarsEventsPhoto = () => {
         value={selectedUser}
         onChangeText={text => setSelectedUser(text)}
       />
-
+			
       {filteredUsers.length > 0 && (
         <FlatList
           data={filteredUsers}
@@ -285,10 +298,10 @@ const BarsEventsPhoto = () => {
 			{errors.users && <Text style={styles.errorText}>{errors.users}</Text>}
       {errors.user && <Text style={styles.errorText}>{errors.user}</Text>}
 
+			{errors.submit && <Text style={styles.errorText}>{errors.submit}</Text>}
       <TouchableOpacity onPress={handleSubmit} style={styles.submitButton} disabled={loading}>
         {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit photo</Text>}
       </TouchableOpacity>
-			{errors.submit && <Text style={styles.errorText}>{errors.submit}</Text>}
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
@@ -361,7 +374,7 @@ const styles = StyleSheet.create({
   imagePreview: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 100,
   },
 	selectedTitle: {
     color: '#303030',

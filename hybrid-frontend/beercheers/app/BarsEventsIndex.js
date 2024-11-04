@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, useRouter } from 'expo-router';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { BACKEND_URL } from '@env';
 
 function BarsEventsIndex() {
@@ -62,9 +63,9 @@ function BarsEventsIndex() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Pressable onPress={() => navigation.navigate('bars')} style={styles.backButton}>
-      <Text style={styles.backText}>{"<"}</Text>
-      </Pressable>
+      <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')} style={styles.backButton}>
+        <Icon name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
 
       <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
 

@@ -10,7 +10,7 @@ import { BACKEND_URL } from '@env';
 const BarsEventsPhotoIndex = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { barId, eventId } = route.params;
+  const { barId, id } = route.params;
   const [photos, setPhotos] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -39,7 +39,7 @@ const BarsEventsPhotoIndex = () => {
     const fetchPhotos = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const response = await axios.get(`${BACKEND_URL}/api/v1/events/${eventId}/event_pictures`, {
+        const response = await axios.get(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -69,7 +69,7 @@ const BarsEventsPhotoIndex = () => {
     };
 
     fetchPhotos();
-  }, [eventId]);
+  }, [id]);
 
   return (
     <View style={styles.container}>
