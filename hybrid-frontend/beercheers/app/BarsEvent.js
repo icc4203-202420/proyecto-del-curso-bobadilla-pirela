@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, Alert, TouchableOpacity, Image } from 'react-native';
+import { View, ScrollView, Text, Button, StyleSheet, FlatList, Alert, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,6 +16,8 @@ const BarsEvent = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [attendees, setAttendees] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -174,10 +176,11 @@ const BarsEvent = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={handleNavigateBack} style={styles.backButton}>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
+      <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
 
       <TouchableOpacity
         style={styles.logoutButton}
@@ -186,12 +189,21 @@ const BarsEvent = () => {
         <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
       </TouchableOpacity>
 
-      {bar && <Text style={styles.barName}>{bar.name}</Text>}
+      {bar && (
+        <Text style={styles.barName}>
+          {bar.name}
+        </Text>
+      )}
 
       {event && (
         <>
-          <Text style={styles.eventName}>{event.name}</Text>
-          <Text style={styles.eventDescription}>{event.description}</Text>
+          <Text style={styles.eventName}>
+            {event.name}
+          </Text>
+
+          <Text style={styles.eventDescription}>
+            {event.description}
+          </Text>
 
           <View style={styles.actionButtons}>
             {isCheckedIn ? (
@@ -215,15 +227,18 @@ const BarsEvent = () => {
           </Text>
 
           <View style={styles.dateContainer}>
-            <Text style={styles.startDateText}>
+            <Text style={styles.dateDetails}>
               Start date: {new Date(event.start_date).toLocaleDateString()}
             </Text>
-            <Text style={styles.endDateText}>
+            <Text style={styles.dateDetails}>
               End date: {new Date(event.end_date).toLocaleDateString()}
             </Text>
           </View>
 
-          <Text style={styles.attendeesTitle}>Attendees:</Text>
+          <Text style={styles.attendeesTitle}>
+            Attendees
+          </Text>
+
           <FlatList
             data={attendees}
             renderItem={renderAttendee}
@@ -232,6 +247,25 @@ const BarsEvent = () => {
           />
         </>
       )}
+
+        <Text style={styles.photosTitle}>
+        Photos
+        </Text>
+
+        <View style={styles.photoButtonContainer}>
+        <Button
+            title="ADD PHOTO"
+            color="#CFB523"
+            onPress={() => navigation.navigate('BarsEventsPhoto', { barId, eventId })}
+        />
+
+        <Button
+            title="ALL PHOTOS"
+            color="#303030"
+            onPress={() => navigation.navigate('BarsEventsPhotoIndex', { barId, eventId })}
+            style={styles.allPhotosButton}
+        />
+        </View>
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
@@ -257,15 +291,21 @@ const BarsEvent = () => {
           <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
         </View>
       </View>
-    </View>
+      </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#282c34',
+    padding: 16,
+    backgroundColor: '#303030',
+  },
+  icon: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginVertical: 10,
   },
   backButton: {
     backgroundColor: '#CFB523',
@@ -292,19 +332,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   barName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'white',
     textAlign: 'center',
+    marginTop: 16,
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight: '900',
+    fontSize: 50,
+    textShadowColor: 'black',
+    textShadowOffset: { width: 1, height: 3 },
+    textShadowRadius: 3,
   },
   eventName: {
-    fontSize: 20,
-    marginVertical: 10,
-    color: '#FFFFFF',
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 16,
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight: '600',
+    fontSize: 36,
+    textShadowColor: 'black',
+    textShadowOffset: { width: 1, height: 3 },
+    textShadowRadius: 3,
   },
   eventDescription: {
-    fontSize: 16,
-    color: '#FFFFFF',
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 8,
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight: '400',
+    fontSize: 20,
   },
   actionButtons: {
     marginVertical: 20,
@@ -320,9 +375,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   attendeesTitle: {
-    fontSize: 18,
-    marginTop: 20,
-    color: '#FFFFFF',
+    color: '#303030',
+    backgroundColor: '#CFB523',
+    textAlign: 'center',
+    marginTop: 16,
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: 30,
+    borderRadius: 8,
+    padding: 5,
   },
   attendeeList: {
     marginTop: 10,
@@ -340,6 +400,27 @@ const styles = StyleSheet.create({
   attendeeHandle: {
     fontSize: 14,
     color: '#FFFFFF',
+  },
+  photosTitle: {
+    color: '#303030',
+    backgroundColor: '#CFB523',
+    textAlign: 'center',
+    marginTop: 16,
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: 30,
+    borderRadius: 8,
+    padding: 5,
+  },
+  photoButtonContainer: {
+    marginTop: 24,
+    textAlign: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  allPhotosButton: {
+    marginLeft: 8,
   },
   bottomNavContainer: {
     position: 'absolute',
@@ -366,12 +447,26 @@ const styles = StyleSheet.create({
     height: 26,
   },
   dateText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginVertical: 10,
+    color: '#CFB523',
+    textAlign: 'center',
+    marginTop: 8,
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight: '300',
+    fontSize: 18,
   },
   dateContainer: {
-    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  dateDetails: {
+    color: 'white',
+    textAlign: 'center',
+    fontFamily: 'Roboto, sans-serif',
+    fontWeight: '300',
+    fontSize: 18,
+    marginHorizontal: 16,
   },
   startDateText: {
     color: '#FFFFFF',
