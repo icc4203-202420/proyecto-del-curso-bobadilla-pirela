@@ -85,6 +85,28 @@ class API::V1::EventsController < ApplicationController
       render json: @event.errors, status: :unprocessable_entity
     end
   end
+  
+  def create_video
+    event = Event.find(params[:id])
+    photo_urls = event.event_pictures.map { |picture| picture.url if picture.picture.attached? }.compact
+  
+    if photo_urls.any?
+      CreateVideoJob.perform_later(event.id, photo_urls)
+      render json: { message: "Video creation started for event #{event.id}" }, status: :accepted
+    else
+      render json: { error: "No images found for event #{event.id}" }, status: :unprocessable_entity
+    end
+  end  
+
+  def get_video
+    event = Event.find(params[:id])
+    if event.video.attached?
+      video_url = url_for(event.video)
+      render json: { video_url: video_url}
+    else
+      render json: { message: "Video is not available."}, status: :not_found
+    end
+  end
 
   private
 

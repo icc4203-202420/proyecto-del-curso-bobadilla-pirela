@@ -6,7 +6,8 @@ class Event < ApplicationRecord
 
   has_one_attached :flyer
   has_many :event_pictures, dependent: :destroy
-
+  has_one_attached :video
+  
   validates :flyer, content_type: { in: ['image/png', 'image/jpg', 'image/jpeg'],
                                     message: 'must be a valid image format' },
                     size: { less_than: 5.megabytes }

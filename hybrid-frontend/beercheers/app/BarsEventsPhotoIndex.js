@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { Video } from 'expo-av';
 import { BACKEND_URL } from '@env';
 import { deleteItem, getItem } from '../Storage';
+import { ScrollView } from 'react-native-web';
 
 const BarsEventsPhotoIndex = () => {
   const route = useRoute();
@@ -14,6 +15,8 @@ const BarsEventsPhotoIndex = () => {
   const { barId, id } = route.params;
   const [photos, setPhotos] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -75,8 +78,53 @@ const BarsEventsPhotoIndex = () => {
     fetchPhotos();
   }, [id]);
 
+  const handleCreateVideo = async () => {
+    if (photos.length === 0) {
+      Alert.alert('Error', 'No photos available to create a video.');
+      return;
+    }
+  
+    const photoUrls = photos.map(photo => photo.url);
+  
+    try {
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
+      const response = await axios.post(`${BACKEND_URL}/api/v1/events/${id}/create_video`, {
+        photo_urls: photoUrls,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      Alert.alert('Video Creation', response.data.message);
+      fetchVideoUrl();
+    } catch (error) {
+      console.error('Error creating video:', error);
+      Alert.alert('Error', 'An error occurred while creating the video.');
+    }
+  };
+  
+  const fetchVideoUrl = async () => {
+    try {
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
+      const response = await axios.get(`${BACKEND_URL}/api/v1/events/${id}/get_video`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (response.data.video_url) {
+        setVideoUrl(response.data.video_url);
+        setIsVideoReady(true);
+      } else {
+        Alert.alert('Error', 'Video URL not found.');
+      }
+    } catch (error) {
+      console.error('Error fetching video URL:', error);
+      Alert.alert('Error', 'Failed to retrieve the video URL.');
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
@@ -112,6 +160,22 @@ const BarsEventsPhotoIndex = () => {
         )}
       />
 
+      <TouchableOpacity style={styles.createVideoButton} onPress={handleCreateVideo}>
+        <Text style={styles.createVideoButtonText}>Create Video</Text>
+      </TouchableOpacity>
+
+      {isVideoReady && videoUrl && (
+        <View style={styles.videoContainer}>
+          <Video
+            source={{ uri: videoUrl }}
+            style={styles.video}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+          />
+        </View>
+      )}
+
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
           <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
@@ -136,7 +200,7 @@ const BarsEventsPhotoIndex = () => {
           <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -189,6 +253,27 @@ const styles = StyleSheet.create({
   },
   userHandles: {
     color: '#CFB523',
+  },
+  createVideoButton: {
+    backgroundColor: '#CFB523',
+    padding: 12,
+    borderRadius: 5,
+    marginVertical: 16,
+    alignItems: 'center',
+  },
+  createVideoButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  videoContainer: {
+    marginVertical: 16,
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
   },
   bottomNavContainer: {
     position: 'absolute',

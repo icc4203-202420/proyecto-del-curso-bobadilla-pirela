@@ -304,6 +304,11 @@ const BarsEventsPhoto = () => {
         />
       )}
 
+      <TouchableOpacity onPress={handleSubmit} style={styles.submitButton} disabled={loading}>
+        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit photo</Text>}
+      </TouchableOpacity>
+      {errors.submit && <Text style={styles.errorText}>{errors.submit}</Text>}
+
       <View style={{ marginTop: 20 }}>
         <Text style={styles.selectedTitle}>Selected Users:</Text>
         {selectedUsers.map(user => (
@@ -320,11 +325,6 @@ const BarsEventsPhoto = () => {
       </View>
 			{errors.users && <Text style={styles.errorText}>{errors.users}</Text>}
       {errors.user && <Text style={styles.errorText}>{errors.user}</Text>}
-
-			{errors.submit && <Text style={styles.errorText}>{errors.submit}</Text>}
-      <TouchableOpacity onPress={handleSubmit} style={styles.submitButton} disabled={loading}>
-        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.submitButtonText}>Submit photo</Text>}
-      </TouchableOpacity>
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>

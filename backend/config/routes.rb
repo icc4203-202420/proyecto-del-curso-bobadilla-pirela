@@ -37,6 +37,8 @@ Rails.application.routes.draw do
       resources :events do
         member do
           get 'attendees', to: 'attendances#attendees'
+          post 'create_video'
+          get 'get_video'
         end
         resource :attendance, only: [:show, :create, :destroy]
         resources :event_pictures

@@ -103,7 +103,9 @@ const SearchUsers = () => {
         const eventsData = await Promise.all(eventsPromises);
     
         const allEvents = eventsData.flatMap(eventData => eventData.events); 
+        
         setEvents(allEvents);
+        //console.log(events)
       } catch (error) {
         dispatch({ type: actions.SET_ERROR, payload: error.message });
       }
