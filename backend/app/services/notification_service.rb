@@ -1,5 +1,6 @@
-# app/services/push_notification_service.rb
 require 'net/http'
+require 'json'
+
 class NotificationService
   def self.send_notification(to:, title:, body:, data:)
     message = {

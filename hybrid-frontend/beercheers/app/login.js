@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
 import { saveItem, getItem } from '../Storage';
+import * as Notifications from 'expo-notifications';
 
 const validationSchema = Yup.object({
   email: Yup.string().email('Email no válido').required('El email es requerido'),
@@ -21,9 +22,19 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const isMounted = useRef(false);
+  const [pushToken, setPushToken] = useState(null);
 
   useEffect(() => {
     isMounted.current = true;
+    const getPushToken = async () => {
+      const token = await Notifications.getExpoPushTokenAsync();
+      if (isMounted.current) {
+        setPushToken(token.data);
+      }
+    };
+
+    getPushToken();
+
     const checkToken = async () => {
       const storedToken = await getItem('authToken');
       const token = storedToken ? storedToken.replace(/"/g, '') : null;
@@ -51,6 +62,7 @@ export default function Login() {
           user: {
             email: values.email,
             password: values.password,
+            push_token: pushToken,
           }
         }),
       });

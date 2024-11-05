@@ -59,8 +59,11 @@ const reducer = (state, action) => {
 const SearchUsers = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [bars, setBars] = useState([]);
+  const [events, setEvents] = useState([]);
   const [selectedBar, setSelectedBar] = useState('');
   const [filteredBars, setFilteredBars] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -91,6 +94,16 @@ const SearchUsers = () => {
 
         const barsResponse = await axios.get(`${BACKEND_URL}/api/v1/bars`);
         setBars(barsResponse.data.bars || []);
+
+        const eventsPromises = bars.map(async (bar) => {
+          const eventsResponse = await axios.get(`${BACKEND_URL}/api/v1/bars/${bar.id}`);
+          return { barId: bar.id, events: eventsResponse.data.events || [] };
+        });
+    
+        const eventsData = await Promise.all(eventsPromises);
+    
+        const allEvents = eventsData.flatMap(eventData => eventData.events); 
+        setEvents(allEvents);
       } catch (error) {
         dispatch({ type: actions.SET_ERROR, payload: error.message });
       }
@@ -100,14 +113,16 @@ const SearchUsers = () => {
   }, []);
 
   const handleAddFriend = async (userId) => {
-    const token = await AsyncStorage.getItem('token');
+    const storedToken = await getItem('authToken');
+    const token = storedToken ? storedToken.replace(/"/g, '') : null;
 
     try {
       const barId = selectedBar ? selectedBar.id : null;
+      const eventId = selectedEvent ? selectedEvent.id : null;
 
       await axios.post(
         `${BACKEND_URL}/api/v1/users/${state.currentUserId}/friendships`,
-        { friendship: { friend_id: userId, bar_id: barId } },
+        { friendship: { friend_id: userId, bar_id: barId, event_id: eventId } },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch({ type: actions.ADD_FRIENDSHIP, payload: userId });
@@ -117,7 +132,8 @@ const SearchUsers = () => {
   };
 
   const handleRemoveFriend = async (userId) => {
-    const token = await AsyncStorage.getItem('token');
+    const storedToken = await getItem('authToken');
+    const token = storedToken ? storedToken.replace(/"/g, '') : null;
 
     try {
       await axios.delete(`${BACKEND_URL}/api/v1/users/${state.currentUserId}/friendships/${userId}`, {
@@ -138,6 +154,12 @@ const SearchUsers = () => {
   const filteredUsers = state.users.filter(user =>
     user.handle.toLowerCase().includes(state.searchTerm.toLowerCase())
   );
+
+  const handleEventSearch = (text) => {
+    setSelectedEvent(text);
+    const filtered = events.filter(event => event.name.toLowerCase().includes(text.toLowerCase()));
+    setFilteredEvents(filtered);
+  };
 
   if (state.loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />;
@@ -162,6 +184,13 @@ const SearchUsers = () => {
         onChangeText={handleBarSearch}
       />
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search Event"
+        value={selectedEvent.name || selectedEvent}
+        onChangeText={handleEventSearch}
+      />
+
       {filteredBars.length > 0 && (
         <FlatList
           data={filteredBars}
@@ -170,6 +199,22 @@ const SearchUsers = () => {
             <TouchableOpacity onPress={() => {
               setSelectedBar(item);
               setFilteredBars([]);
+            }} style={styles.barItem}>
+              <Text style={styles.barText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+          style={styles.barList}
+        />
+      )}
+
+      {filteredEvents.length > 0 && (
+        <FlatList
+          data={filteredEvents}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => {
+              setSelectedEvent(item);
+              setFilteredEvents([]);
             }} style={styles.barItem}>
               <Text style={styles.barText}>{item.name}</Text>
             </TouchableOpacity>

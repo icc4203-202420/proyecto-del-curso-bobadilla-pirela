@@ -9,9 +9,12 @@ class API::V1::SessionsController < Devise::SessionsController
 
     # Verificar si se encontró un usuario con ese correo
     if user && user.valid_password?(params[:user][:password])
+      if params[:user][:push_token].present?
+        user.update(push_token: params[:user][:push_token])
+      end
       token = encode_token({ sub: user.id })
       Rails.logger.debug("Generated token: #{token}")  # Agrega esta línea para depurar
-
+      
       render json: {
         status: { 
           code: 200, message: 'Logged in successfully.',

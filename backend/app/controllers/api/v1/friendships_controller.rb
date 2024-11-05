@@ -2,7 +2,6 @@ class API::V1::FriendshipsController < ApplicationController
   before_action :authenticate_user_from_token!
 
   before_action :set_user
-  #before_action :verify_jwt_token, only: [:create, :index]
 
   def index
     friendships = @user.friendships.includes(:friend, :bar)
@@ -35,7 +34,7 @@ class API::V1::FriendshipsController < ApplicationController
   end
 
   def friendship_params
-    params.require(:friendship).permit(:friend_id, :bar_id)
+    params.require(:friendship).permit(:friend_id, :bar_id, :event_id)
   end
 
   def authenticate_user_from_token!
@@ -52,4 +51,3 @@ class API::V1::FriendshipsController < ApplicationController
     end
   end
 end
-  

@@ -10,6 +10,19 @@
       "expo-secure-store"
     ],
     "name": "beercheers",
-    "slug": "beercheers"
+    "slug": "beercheers",
+    "android": {
+      "permissions": [
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "NOTIFICATION_SERVICE"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1c927184-81c7-4520-b34f-5c4ac8168f00"
+      }
+    },
+    "owner": "uandesgian"
   }
 }

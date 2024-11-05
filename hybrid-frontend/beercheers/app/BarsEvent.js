@@ -288,7 +288,7 @@ function BarsEvent() {
 
         <Button
           title="ALL PHOTOS"
-          color="#fff"
+          color="#606060"
           onPress={() => navigation.navigate('BarsEventsPhotoIndex', { barId, id })}
           style={styles.allPhotosButton}
         />
@@ -296,7 +296,7 @@ function BarsEvent() {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
+          <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}
@@ -475,6 +475,7 @@ const styles = StyleSheet.create({
   },
   allPhotosButton: {
     marginLeft: 8,
+    borderTopColor: '#303030'
   },
   bottomNavContainer: {
     position: 'absolute',
