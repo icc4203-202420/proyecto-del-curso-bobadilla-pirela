@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { BACKEND_URL } from '@env';
-import { saveItem, getItem } from '../Storage';
+import { deleteItem, getItem } from '../Storage';
 
 const BarsEventsPhotoIndex = () => {
   const route = useRoute();
@@ -29,7 +29,8 @@ const BarsEventsPhotoIndex = () => {
   }, [navigation]);
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('token');
+    await deleteItem('authToken');
+    await deleteItem('user_id');
     navigation.navigate('index');
   };
 
@@ -113,7 +114,7 @@ const BarsEventsPhotoIndex = () => {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')}>
+          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}

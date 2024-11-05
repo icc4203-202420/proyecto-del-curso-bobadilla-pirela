@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text, Button, StyleSheet, FlatList, Alert, TouchableOpacity, Image } from 'react-native';
-import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -297,7 +296,7 @@ function BarsEvent() {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}

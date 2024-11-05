@@ -5,7 +5,7 @@ class API::V1::EventPicturesController < ApplicationController
 
   # GET /api/v1/event_pictures
   def index
-    @event_pictures = EventPicture.all
+    @event_pictures = EventPicture.where(event_id: params[:event_id])
     render json: EventPictureSerializer.new(@event_pictures).serializable_hash, status: :ok
   end
 
@@ -17,11 +17,19 @@ class API::V1::EventPicturesController < ApplicationController
   # POST /api/v1/event_pictures
   def create
     @event_picture = EventPicture.new(event_picture_params.except(:user_ids).merge(user_id: @current_user.id)) # Excluye user_ids de los parámetros
-    puts(2)
     if @event_picture.save
       if params[:event_picture][:user_ids].present?
         params[:event_picture][:user_ids].each do |user_id|
           EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
+          @user = User.find(user_id)
+          if @user.push_token.present?
+            PushNotificationService.send_notification(
+                to: @user.push_token,
+                title: "You've been tagged in a picture!",
+                body: "#{@user.first_name}, #{@current_user.first_name} has tagged you in a picture for the event #{@event_picture.event.name}",
+                data: { event_picture_id: @event_picture.id }
+            )
+          end
         end
       end
       render json: @event_picture, status: :created

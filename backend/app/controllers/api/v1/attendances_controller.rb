@@ -5,6 +5,25 @@ class API::V1::AttendancesController < ApplicationController
   def create
     @attendance = @event.attendances.find_or_initialize_by(user: current_user)
     if @attendance.update(checked_in: true)
+      if @current_user.push_token.present?
+        # DEBUG
+        NotificationService.send_notification(
+          to: @current_user.push_token,
+          title: "Has confirmado tu asistencia al evento!",
+          body: "Estaremos esperándote en el evento #{@event.name}.",
+          data: {}
+        )
+        friends = current_user.friends
+        friends.each do |friend|
+          next unless friend.push_token.present? 
+          NotificationService.send_notification(
+            to: friend.push_token,
+            title: "#{current_user.handle} has checked in to an event!",
+            body: "#{current_user.handle} has decided to attend the event: #{@event.name}.",
+            data: { event_id: @event.id }
+          )
+        end
+      end
       render json: { status: 'success', attendance: @attendance }, status: :ok
     else
       render json: { status: 'error', message: @attendance.errors.full_messages }, status: :unprocessable_entity

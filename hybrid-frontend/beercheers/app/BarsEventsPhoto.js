@@ -328,7 +328,7 @@ const BarsEventsPhoto = () => {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')}>
+          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}

@@ -96,7 +96,7 @@ const BarsIndex = () => {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('bars')}>
+          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}
