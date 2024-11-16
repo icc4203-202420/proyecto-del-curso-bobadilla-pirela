@@ -15,3 +15,6 @@ file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela
 file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/25.jpg'
 file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/26.jpg'
 file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/34.jpg'
+file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/35.jpg'
+file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/36.jpg'
+file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/37.jpg'

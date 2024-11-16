@@ -23,7 +23,7 @@ class API::V1::EventPicturesController < ApplicationController
           EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
           @user = User.find(user_id)
           if @user.push_token.present?
-            PushNotificationService.send_notification(
+            NotificationService.send_notification(
                 to: @user.push_token,
                 title: "You've been tagged in a picture!",
                 body: "#{@user.first_name}, #{@current_user.first_name} has tagged you in a picture for the event #{@event_picture.event.name}",
