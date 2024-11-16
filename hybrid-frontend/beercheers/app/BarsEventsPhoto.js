@@ -131,113 +131,90 @@ const BarsEventsPhoto = () => {
     );
   };
 
+  const handleFileChange = (e) => {
+    setPicture(e.target.files[0]);
+  };
+
   const pickImage = async () => {
     if (Platform.OS === 'web') {
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (permissionResult.granted === false) {
-        alert("Permission to access gallery is required!");
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1], 
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        setPicture(result.assets[0].uri); 
-      }
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = handleFileChange;
+      input.click();
     } else {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (permissionResult.granted === false) {
-        Alert.alert("Permission to access gallery is required!");
+        Alert.alert('Permission to access gallery is required!');
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
-        base64: false,
+        base64: true,
       });
 
       if (!result.canceled) {
-        setPicture(result.assets[0]);
+        setPicture(result.assets[0].uri);
       }
     }
   };
 
-  const handleSubmit = async () => {
-    if (!picture) {
-      setErrors({picture: 'Please select a picture.'});
-      return;
-    }
-
-		if (!description) {
-      setErrors({description: 'Please add a description.'});
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
-		setErrors({});
-
+  
     const formData = new FormData();
+  
     if (Platform.OS === 'web') {
       formData.append('event_picture[picture]', picture);
     } else {
       const fileUri = picture.uri;
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      const fileBase64 = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
       formData.append('event_picture[picture]', {
         uri: picture.uri,
         name: picture.uri.split('/').pop(),
         type: 'image/jpeg',
       });
     }
+  
     formData.append('event_picture[description]', description);
     formData.append('event_picture[event_id]', id);
-
+  
     selectedUsers.forEach(user => {
-      formData.append('event_picture[user_ids][]', user.id);
+      formData.append('event_picture[user_ids][]', user.id); 
     });
-
+  
     try {
-			const storedToken = await getItem('authToken');
+      const storedToken = await getItem('authToken');
       const token = storedToken ? storedToken.replace(/"/g, '') : null;
-			if (!token) {
-				setErrors({ submit: 'No se encontró el token de autenticación.' });
-				setLoading(false);
-				return;
-			}
-			
-			const response = await fetch(`${BACKEND_URL}/api/v1/events/${id}/event_pictures`, {
-				method: 'POST',
-				headers: {
-          'Content-Type': 'multipart/form-data',
-					Authorization: `Bearer ${token}`,
-				},
-				body: formData,
-			});
-
-			const data = await response.json();
-
-			if (response.ok) {
-        console.log("Upload successful:", data);
-        navigation.navigate('BarsEvent', { barId, id });
-      } else {
-        console.error("Error uploading picture:", data);
+      if (!token) {
+        setErrors({ submit: 'No se encontró el token de autenticación.' });
+        setLoading(false);
+        return;
       }
-			
-
-		} catch (error) {
-			setErrors({ submit: 'Error uploading picture.' });
-		} finally {
-			setLoading(false);
-		}
-	};
+  
+      // Enviar el FormData al backend usando axios
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/events/${id}/event_pictures`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      router.push(`BarsEvent?barId=${barId}&id=${id}`);
+    } catch (error) {
+      setErrors({ submit: 'Error al cargar la imagen. Por favor, inténtalo de nuevo.' });
+    } finally {
+      
+      setLoading(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { flexGrow: 1 }]}>
@@ -261,7 +238,7 @@ const BarsEventsPhoto = () => {
       <TouchableOpacity onPress={pickImage}>
 				<View style={[styles.uploadButton, picture && { backgroundColor: '#CFB523' }]}>
           {picture && Platform.OS === 'web' ? (
-            <Text style={styles.uploadText}>+</Text>
+            <Image source={{ uri: picture }} style={styles.imagePreview} />
           ) : picture ? (
             <Image source={{ uri: picture.uri }} style={styles.imagePreview} />
           ) : (

@@ -112,7 +112,7 @@ const SearchUsers = () => {
     };
 
     fetchData();
-  }, []);
+  }, [filteredEvents]);
 
   const handleAddFriend = async (userId) => {
     const storedToken = await getItem('authToken');
@@ -209,9 +209,9 @@ const SearchUsers = () => {
         />
       )}
 
-      {filteredEvents.length > 0 && (
+      {events.length > 0 && (
         <FlatList
-          data={filteredEvents}
+          data={events}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => {
