@@ -22,13 +22,14 @@ class API::V1::EventPicturesController < ApplicationController
         "feed_#{current_user.id}",
         {
           user_id: current_user.id,
-          description: event_picture.description,
-          event_picture_id: event_picture.id,
-          event_name: event_picture.event.name,
-          bar_name: event_picture.event.bar.name,
-          country_name: event_picture.event.bar.address.country.name,
-          event_id: event_picture.event.id,
+          description: @event_picture.description,
+          event_picture_id: @event_picture.id,
+          event_name: @event_picture.event.name,
+          bar_name: @event_picture.event.bar.name,
+          country_name: @event_picture.event.bar.address.country.name,
+          event_id: @event_picture.event.id,
           type: "feed_photo",
+          picture_url: @event_picture.url
         }
       );
       create_feed_photo(@event_picture);

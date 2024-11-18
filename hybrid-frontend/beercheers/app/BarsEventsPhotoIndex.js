@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   bottomNavContainer: {
-    position: 'absolute',
+    position: 'bottom',
     bottom: 0,
     left: 0,
     right: 0,
@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: '#CFB523',
     paddingVertical: 10,
+    marginTop: 20,
   },
   bottomNavAction: {
     alignItems: 'center',

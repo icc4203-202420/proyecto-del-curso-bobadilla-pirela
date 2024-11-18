@@ -5,5 +5,5 @@ class API::V1::FeedReviewsController < ApplicationController
   
       render json: @feed_reviews, status: :ok
     end
-  end
+end
   

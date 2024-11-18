@@ -6,5 +6,5 @@ class FeedPhoto < ApplicationRecord
     def picture_url
       event_picture.picture.attached? ? Rails.application.routes.url_helpers.rails_blob_url(event_picture.picture, only_path: true) : nil
     end
-  end
+end
   

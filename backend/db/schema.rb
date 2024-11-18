@@ -167,6 +167,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_053103) do
     t.string "bar_name"
     t.string "country_name"
     t.integer "event_id", null: false
+    t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

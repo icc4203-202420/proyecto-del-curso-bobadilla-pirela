@@ -43,7 +43,7 @@ Rails.application.routes.draw do
         resource :attendance, only: [:show, :create, :destroy]
         resources :event_pictures
       end
-      resources :feed_reviews, only: [:index]
+      get '/feed', to: 'feeds#index'
       resources :reviews, only: [:index, :show, :create, :update, :destroy]
     end
   end
