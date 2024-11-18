@@ -80,7 +80,7 @@ const Home = () => {
         onPress={() => router.push('/Feed')}
       >
         <Icon name="list" size={100} color="#E3E5AF" />
-        <Text style={styles.text}>User</Text>
+        <Text style={styles.text}>Feed</Text>
       </TouchableOpacity>
     </View>
   );
