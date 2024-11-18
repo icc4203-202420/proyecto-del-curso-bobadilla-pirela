@@ -52,6 +52,7 @@ const BarsEventsPhoto = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [picture, setPicture] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
@@ -132,8 +133,14 @@ const BarsEventsPhoto = () => {
   };
 
   const handleFileChange = (e) => {
-    setPicture(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const fileURL = URL.createObjectURL(selectedFile); // Crear URI para la vista previa
+      setPreview(fileURL); // Guardar la URI en el estado para mostrar la vista previa
+      setPicture(selectedFile); // Guardar el archivo para enviarlo al backend
+    }
   };
+
 
   const pickImage = async () => {
     if (Platform.OS === 'web') {
@@ -238,7 +245,7 @@ const BarsEventsPhoto = () => {
       <TouchableOpacity onPress={pickImage}>
 				<View style={[styles.uploadButton, picture && { backgroundColor: '#CFB523' }]}>
           {picture && Platform.OS === 'web' ? (
-            <Image source={{ uri: picture }} style={styles.imagePreview} />
+            <Image source={{ uri: preview }} style={styles.imagePreview} />
           ) : picture ? (
             <Image source={{ uri: picture.uri }} style={styles.imagePreview} />
           ) : (

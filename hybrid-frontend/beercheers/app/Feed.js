@@ -8,7 +8,9 @@ import { BACKEND_URL } from '@env';
 // Ensure the WebSocket connection is authenticated
 const createAuthenticatedCable = async () => {
   const token = (await getItem('authToken'))?.replace(/"/g, '');
-  return ActionCable.createConsumer(`ws://192.168.4.101:3000/cable?token=${token}`);
+  const url = new URL(BACKEND_URL);
+  const BACKEND_IP = url.host;
+  return ActionCable.createConsumer(`ws://${BACKEND_IP}/cable?token=${token}`);
 };
 
 const Feed = ({ navigation }) => {
@@ -97,8 +99,8 @@ const Feed = ({ navigation }) => {
   }, [subscribed, filter]);
 
   const handleFilterChange = (text) => {
-    setFilter(text); // Actualiza el filtro
-    fetchInitialPosts(); // Vuelve a cargar los posts con el nuevo filtro
+    setFilter(text); 
+    fetchInitialPosts();
   };
 
 
@@ -117,7 +119,7 @@ const Feed = ({ navigation }) => {
       return (
         <View style={styles.postContainer}>
           <Text style={styles.eventName}>{item.event_name}</Text>
-          <Image source={{ uri: item.picture_url }} style={styles.postImage} />
+          <Image source={{ uri: item.picture }} style={styles.postImage} />
           <Text style={styles.description}>{item.description}</Text>
         </View>
       );
@@ -140,7 +142,6 @@ const Feed = ({ navigation }) => {
       <Text style={styles.title}>Feed</Text>
       {error && <Text style={styles.errorText}>{error}</Text>}
       
-      {/* Filtro de búsqueda */}
       <TextInput
         style={styles.filterInput}
         placeholder="Filtrar por amistad, bar, país o cerveza"
@@ -148,12 +149,10 @@ const Feed = ({ navigation }) => {
         onChangeText={handleFilterChange}
       />
       
-      {/* FlatList para mostrar las publicaciones */}
       <FlatList
-        data={posts} // Array de publicaciones combinadas (fotos y reseñas)
-        renderItem={renderItem} // Función para renderizar cada item
-        keyExtractor={(item) => item.id.toString()} // Usamos el id de la publicación como clave
-        inverted // Invertir el orden para mostrar las más recientes primero
+        data={posts} 
+        renderItem={renderItem} 
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );

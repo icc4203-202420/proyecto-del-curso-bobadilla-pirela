@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { saveItem, getItem } from '../Storage';
 
 const initialState = {
@@ -268,6 +269,9 @@ const SearchUsers = () => {
         </View>
         <View style={styles.bottomNavAction}>
           <MaterialIcons name="person" size={24} color="#CFB523" onPress={() => router.push('/SearchUsers')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <Icon name="list" size={24} color="#E3E5AF" onPress={() => router.push('/Feed')} />
         </View>
       </View>
     </View>

@@ -12,7 +12,7 @@ const Home = () => {
     const checkLoginStatus = async () => {
       const storedToken = await getItem('authToken');
       const token = storedToken ? storedToken.replace(/"/g, '') : null;
-      setIsLoggedIn(!!token); // Establecer el estado según la existencia del token
+      setIsLoggedIn(!!token); 
     };
   
     checkLoginStatus();
