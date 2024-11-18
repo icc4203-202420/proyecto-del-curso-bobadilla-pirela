@@ -39,6 +39,23 @@ class API::V1::ReviewsController < ApplicationController
       review = current_user.reviews.new(review_params.merge(beer_id: params[:beer_id]))
 
       if review.save
+        ActionCable.server.broadcast(
+        "feed_#{current_user.id}",
+        {
+          user_id: current_user.id,
+          handle: review.user.handle,
+          beer_name: review.beer.name,
+          rating: review.rating,
+          beer_id: review.beer.id,
+          type: "feed_review",
+        }
+      );
+        FeedReview.create!(
+          user_id: current_user.id,
+          rating: review.rating,
+          text: review.text,
+          beer_id: review.beer.id,
+          );
         render json: { status: 200, message: 'Review created successfully.', review: review }, status: :ok
       else
         render json: { error: 'Failed to create review.' }, status: :unprocessable_entity
