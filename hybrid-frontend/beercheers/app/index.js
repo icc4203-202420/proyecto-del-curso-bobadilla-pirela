@@ -74,6 +74,14 @@ const Home = () => {
         <Icon name="person" size={100} color="#E3E5AF" />
         <Text style={styles.text}>User</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push('/Feed')}
+      >
+        <Icon name="list" size={100} color="#E3E5AF" />
+        <Text style={styles.text}>User</Text>
+      </TouchableOpacity>
     </View>
   );
 };

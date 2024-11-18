@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_05_003746) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_18_053103) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -160,6 +160,28 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_05_003746) do
     t.index ["bar_id"], name: "index_events_on_bar_id"
   end
 
+  create_table "feed_photos", force: :cascade do |t|
+    t.string "description"
+    t.integer "event_picture_id", null: false
+    t.string "event_name"
+    t.string "bar_name"
+    t.string "country_name"
+    t.integer "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "feed_reviews", force: :cascade do |t|
+    t.decimal "rating", precision: 10, scale: 2
+    t.string "text"
+    t.integer "beer_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["beer_id"], name: "index_feed_reviews_on_beer_id"
+    t.index ["user_id"], name: "index_feed_reviews_on_user_id"
+  end
+
   create_table "friendships", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "friend_id", null: false
@@ -228,6 +250,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_05_003746) do
   add_foreign_key "event_pictures_users", "event_pictures"
   add_foreign_key "event_pictures_users", "users"
   add_foreign_key "events", "bars"
+  add_foreign_key "feed_reviews", "beers"
+  add_foreign_key "feed_reviews", "users"
   add_foreign_key "friendships", "bars"
   add_foreign_key "friendships", "events"
   add_foreign_key "friendships", "users"
