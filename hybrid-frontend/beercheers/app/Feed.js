@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Button, Image, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Button, Image, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import ActionCable from 'actioncable';
+import { MaterialIcons } from '@expo/vector-icons'; 
 import { getItem } from '../Storage';
 import axios from 'axios';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
 
 // Ensure the WebSocket connection is authenticated
@@ -16,10 +19,12 @@ const createAuthenticatedCable = async () => {
 const Feed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null); // Replace with actual logic to get the authenticated user's ID
+  const router = useRouter();
+  const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
   const [subscribed, setSubscribed] = useState(false);
-  const [filter, setFilter] = useState(''); // State to handle filters
+  const [filter, setFilter] = useState(''); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   useEffect(() => {
     const fetchUserId = async () => {
@@ -34,12 +39,20 @@ const Feed = ({ navigation }) => {
     fetchUserId();
   }, []);
 
-  // Fetch initial posts based on filters
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const storedToken = await getItem('authToken');
+      const token = storedToken ? storedToken.replace(/"/g, '') : null;
+      setIsLoggedIn(!!token);
+    };
+  
+    checkLoginStatus();
+  }, []);
+
   const fetchInitialPosts = async () => {
     try {
       const storedToken = await getItem('authToken');
       const token = storedToken ? storedToken.replace(/"/g, '') : null;
-      // Realiza la solicitud al nuevo endpoint combinado
       const response = await axios.get(`${BACKEND_URL}/api/v1/feed`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -55,7 +68,6 @@ const Feed = ({ navigation }) => {
     }
   };
 
-  // Set up real-time WebSocket connection
   useEffect(() => {
     createAuthenticatedCable().then((cable) => {
       if (userId) {
@@ -98,6 +110,14 @@ const Feed = ({ navigation }) => {
     }
   }, [subscribed, filter]);
 
+  const handleLogout = async () => {
+    router.push('/');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   const handleFilterChange = (text) => {
     setFilter(text); 
     fetchInitialPosts();
@@ -106,9 +126,12 @@ const Feed = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Cargando publicaciones...</Text>
+      <View style={styles.container}>
+        <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#CFB523" />
+          <Text>Cargando publicaciones...</Text>
+        </View>
       </View>
     );
   }
@@ -129,16 +152,24 @@ const Feed = ({ navigation }) => {
       return (
         <View style={styles.postContainer}>
           <Text style={styles.beerName}>{item.beer_name} Review</Text>
-          <Text style={styles.reviewText}>{item.text}</Text>
+          <Text style={styles.description}>{item.text}</Text>
           <Text style={styles.rating}>Rating: {item.rating}</Text>
         </View>
       );
     }
-    return null;
   };
 
   return (
     <View style={styles.container}>
+      <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
+      
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={isLoggedIn ? handleLogout : handleLogin}
+      >
+        <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Feed</Text>
       {error && <Text style={styles.errorText}>{error}</Text>}
       
@@ -154,22 +185,127 @@ const Feed = ({ navigation }) => {
         renderItem={renderItem} 
         keyExtractor={(item) => item.id.toString()}
       />
+
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
+            <Image
+              source={require('../assets/baricon.png')}
+              style={styles.barIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <TouchableOpacity onPress={() => router.push('/beers')}>
+            <Image
+              source={require('../assets/searchgray.png')}
+              style={styles.searchIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => router.push('/BarsIndexMap')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => router.push('/SearchUsers')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <Icon name="list" size={24} color="#CFB523" onPress={() => router.push('/Feed')} />
+        </View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 24, fontWeight: 'bold' },
+  container: {
+    flex: 1,
+    backgroundColor: '#303030',
+  },
+  icon: {
+    width: 100,
+    height: 'auto',
+    marginBottom: 8,
+    alignSelf: 'center',
+  },
+  title: {
+    color: 'white',
+    textAlign: 'center',
+    fontFamily: 'Roboto',
+    fontWeight: '900',
+    fontSize: 32,
+    textShadow: '1px 3px 3px black',
+  },
+  photoItem: {
+    marginVertical: 8,
+    alignItems: 'center',
+  },
+  photoContainer: {
+    width: 150,
+    height: 150,
+    overflow: 'hidden',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  eventPhoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
   errorText: { color: 'red' },
-  filterInput: { height: 40, borderColor: '#ccc', borderWidth: 1, marginBottom: 16, paddingLeft: 8 },
+  filterInput: { height: 40, borderColor: '#fff', borderWidth: 1, },
   postContainer: { marginBottom: 16 },
-  eventName: { fontSize: 18, fontWeight: 'bold' },
+  eventName: { fontSize: 18, color: '#CFB523', fontWeight: 'bold' },
   postImage: { width: '100%', height: 200, resizeMode: 'cover', marginVertical: 8 },
-  description: { fontSize: 16 },
-  beerName: { fontSize: 18, fontWeight: 'bold' },
-  reviewText: { fontSize: 16 },
+  beerName: { fontSize: 18, color: '#CFB523', fontWeight: 'bold' },
   rating: { fontSize: 14, color: '#888' },
+  description: {
+    color: 'white',
+    textAlign: 'center',
+    fontFamily: 'Roboto',
+  },
+  userHandles: {
+    color: '#CFB523',
+  },
+  bottomNavContainer: {
+    position: 'bottom',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#303030',
+    borderTopWidth: 2,
+    borderTopColor: '#CFB523',
+    paddingVertical: 10,
+    marginTop: 20,
+  },
+  bottomNavAction: {
+    alignItems: 'center',
+  },
+  searchIcon: {
+    width: 32,
+    height: 26,
+  },
+  barIcon: {
+    width: 60,
+    height: 26,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
 
 export default Feed;

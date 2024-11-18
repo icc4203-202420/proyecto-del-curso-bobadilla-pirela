@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { saveItem, getItem } from '../Storage';
 
 const BarsIndexMap = () => {
@@ -41,7 +42,7 @@ const BarsIndexMap = () => {
       
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('BarsIndex')}>
+          <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
             <Image
               source={require('../assets/baricon_gray.png')}
               style={styles.barIcon}
@@ -49,7 +50,7 @@ const BarsIndexMap = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('beers')}>
+          <TouchableOpacity onPress={() => router.push('/beers')}>
             <Image
               source={require('../assets/searchgray.png')}
               style={styles.searchIcon}
@@ -57,10 +58,13 @@ const BarsIndexMap = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomNavAction}>
-          <MaterialIcons name="map" size={24} color="#CFB523" onPress={() => navigation.navigate('BarsIndexMap')} />
+          <MaterialIcons name="map" size={24} color="#CFB523" onPress={() => router.push('/BarsIndexMap')} />
         </View>
         <View style={styles.bottomNavAction}>
-          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => router.push('/SearchUsers')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <Icon name="list" size={24} color="#E3E5AF" onPress={() => router.push('/Feed')} />
         </View>
       </View>
     </View>

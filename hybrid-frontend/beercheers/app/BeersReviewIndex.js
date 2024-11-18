@@ -6,6 +6,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { BACKEND_URL } from '@env';
 import { MaterialIcons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const initialState = {
   reviews: [],
@@ -190,7 +191,7 @@ const BeersReviewIndex = () => {
         contentContainerStyle={styles.reviewList}
       />
 
-<View style={styles.bottomNavContainer}>
+      <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
           <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
             <Image

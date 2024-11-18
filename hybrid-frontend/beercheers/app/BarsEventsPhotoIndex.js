@@ -6,11 +6,13 @@ import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Alert } from
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Video } from 'expo-av';
 import { BACKEND_URL } from '@env';
+import { Link, useRouter } from 'expo-router';
 import { deleteItem, getItem } from '../Storage';
 import { ScrollView } from 'react-native-web';
 
 const BarsEventsPhotoIndex = () => {
   const route = useRoute();
+  const router = useRouter();
   const navigation = useNavigation();
   const { barId, id } = route.params;
   const [photos, setPhotos] = useState([]);
@@ -178,7 +180,7 @@ const BarsEventsPhotoIndex = () => {
 
       <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('/BarsIndex')}>
+          <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
             <Image
               source={require('../assets/baricon.png')}
               style={styles.barIcon}
@@ -186,7 +188,7 @@ const BarsEventsPhotoIndex = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomNavAction}>
-          <TouchableOpacity onPress={() => navigation.navigate('beers')}>
+          <TouchableOpacity onPress={() => router.push('/beers')}>
             <Image
               source={require('../assets/searchgray.png')}
               style={styles.searchIcon}
@@ -194,10 +196,13 @@ const BarsEventsPhotoIndex = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomNavAction}>
-          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => navigation.navigate('BarsIndexMap')} />
+          <MaterialIcons name="map" size={24} color="#E3E5AF" onPress={() => router.push('/BarsIndexMap')} />
         </View>
         <View style={styles.bottomNavAction}>
-          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => navigation.navigate('SearchUsers')} />
+          <MaterialIcons name="person" size={24} color="#E3E5AF" onPress={() => router.push('/SearchUsers')} />
+        </View>
+        <View style={styles.bottomNavAction}>
+          <Icon name="list" size={24} color="#E3E5AF" onPress={() => router.push('/Feed')} />
         </View>
       </View>
     </ScrollView>
