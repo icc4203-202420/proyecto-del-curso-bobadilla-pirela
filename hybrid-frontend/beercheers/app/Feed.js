@@ -18,13 +18,14 @@ const createAuthenticatedCable = async () => {
 
 const Feed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const [userId, setUserId] = useState(null);
+  const [postdata, setPostsData] = useState([]);
   const [error, setError] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [filter, setFilter] = useState(''); 
+  const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const [userId, setUserId] = useState(null);
   
   useEffect(() => {
     const fetchUserId = async () => {
@@ -49,6 +50,65 @@ const Feed = ({ navigation }) => {
     checkLoginStatus();
   }, []);
 
+  const processFeedReviews = async (reviews, token) => {
+    const processedReviews = await Promise.all(
+      reviews.map(async (review) => {
+        console.log(review)
+        try {
+          const beerResponse = await axios.get(`${BACKEND_URL}/api/v1/beers/${review.beer_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          const beer = beerResponse.data;
+          console.log(beer)
+          const barsBeersResponse = await axios.get(`${BACKEND_URL}/api/v1/bars_beers`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+  
+          const barIds = barsBeersResponse.data
+            .filter((bb) => bb.beer_id === review.beer_id)
+            .map((bb) => bb.bar_id);
+  
+          const bars = await Promise.all(
+            barIds.map(async (barId) => {
+              const barResponse = await axios.get(`${BACKEND_URL}/api/v1/bars/${barId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const bar = barResponse.data;
+  
+              const addressResponse = await axios.get(`${BACKEND_URL}/api/v1/addresses`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const address = addressResponse.data.find((addr) => addr.bar_id === barId);
+  
+              const countryResponse = await axios.get(`${BACKEND_URL}/api/v1/countries/${address.country_id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+  
+              return {
+                ...bar,
+                address,
+                country: countryResponse.data,
+              };
+            })
+          );
+  
+          return {
+            ...review,
+            beer: { ...beer, avg_rating: beer.avg_rating },
+            bars,
+          };
+        } catch (error) {
+          console.error('Error al procesar FeedReview:', error);
+          return null;
+        }
+      })
+    );
+  
+    return processedReviews.filter((review) => review !== null);
+  };
+
+
   const fetchInitialPosts = async () => {
     try {
       const storedToken = await getItem('authToken');
@@ -58,8 +118,43 @@ const Feed = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response)
-      setPosts(response.data);
+
+      const processedPosts = await Promise.all(response.data.map(async (post) => {
+        let processedData = {};
+      
+        if (post.event_picture_id) {
+          console.log("Fetching event picture...");
+          try {
+            const eventPictureResponse = await axios.get(
+              `${BACKEND_URL}/api/v1/events/${post.event_id}/event_pictures/${post.event_picture_id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+      
+            console.log(eventPictureResponse.data); // Verifica la respuesta aquí
+      
+            const eventPicture = eventPictureResponse.data;
+      
+            return {
+              ...post,
+              picture_url: eventPicture.attributes.url,
+              taggedUsers: eventPicture.attributes.tagged_users,
+            };
+          } catch (error) {
+            console.error('Error al procesar FeedPicture:', error);
+            return null;
+          }
+        } else {
+          // Si es una review, procesarlo con processFeedReview
+          processedData = await processFeedReviews(post, token);
+        }
+      
+        // Combina los datos procesados con los datos originales del post
+        return { ...post, ...processedData };
+      }));
+
+      console.log(processedPosts)
+      // Establecer los posts procesados completos en el estado
+      setPosts(processedPosts.filter(post => post !== null));
     } catch (error) {
       console.error('Error al cargar las publicaciones:', error);
       setError('Error al cargar las publicaciones. Inténtalo nuevamente.');
@@ -109,6 +204,7 @@ const Feed = ({ navigation }) => {
       fetchInitialPosts();
     }
   }, [subscribed, filter]);
+  
 
   const handleLogout = async () => {
     router.push('/');
@@ -123,7 +219,6 @@ const Feed = ({ navigation }) => {
     fetchInitialPosts();
   };
 
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -137,23 +232,34 @@ const Feed = ({ navigation }) => {
   }
   
   const renderItem = ({ item }) => {
-    // Si el item es una foto
-    if (item.event_picture_id) {
+    if (item.rating) {
       return (
-        <View style={styles.postContainer}>
-          <Text style={styles.eventName}>{item.event_name}</Text>
-          <Image source={{ uri: item.picture }} style={styles.postImage} />
-          <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.post}>
+          <Text style={styles.title}>Review</Text>
+          <Text>Beer: {item.beer.name}</Text>
+          <Text>Avg Rating: {item.beer.avg_rating}</Text>
+          <Text>Bars:</Text>
+          {item.bars.map((bar) => (
+            <View key={bar.id}>
+              <Text>{bar.name}</Text>
+              <Text>{bar.address.street}, {bar.country.name}</Text>
+            </View>
+          ))}
+          <Text>{item.created_at}</Text>
         </View>
       );
-    }
-    // Si el item es una reseña
-    else {
+    } else {
       return (
-        <View style={styles.postContainer}>
-          <Text style={styles.beerName}>{item.beer_name} Review</Text>
-          <Text style={styles.description}>{item.text}</Text>
-          <Text style={styles.rating}>Rating: {item.rating}</Text>
+        <View style={styles.post}>
+          <Text style={styles.title}>Picture</Text>
+          <Image source={{ uri: item.picture_url }} style={styles.image} />
+          <Text style={styles.taggedUsers}>
+            Tagged Users:{' '}
+            <Text style={styles.userHandles}>
+              {item.taggedUsers.map((user) => user.handle).join(', ')}
+            </Text>
+          </Text>
+          <Text>{item.created_at}</Text>
         </View>
       );
     }
@@ -190,7 +296,7 @@ const Feed = ({ navigation }) => {
         <View style={styles.bottomNavAction}>
           <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
             <Image
-              source={require('../assets/baricon.png')}
+              source={require('../assets/baricon_gray.png')}
               style={styles.barIcon}
             />
           </TouchableOpacity>
