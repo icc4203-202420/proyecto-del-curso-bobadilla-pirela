@@ -15,7 +15,7 @@ function BeersIndex() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/v1/beers')
+    axios.get('http://192.168.100.13:3001/api/v1/beers')
       .then(response => {
         console.log(response.data);
         setBeers(response.data.beers || []);

@@ -18,6 +18,21 @@ class API::V1::EventPicturesController < ApplicationController
   def create
     @event_picture = EventPicture.new(event_picture_params.except(:user_ids).merge(user_id: @current_user.id)) # Excluye user_ids de los parámetros
     if @event_picture.save
+      ActionCable.server.broadcast(
+        "feed_#{current_user.id}",
+        {
+          user_id: current_user.id,
+          description: event_picture.description,
+          event_picture_id: event_picture.id,
+          event_name: event_picture.event.name,
+          bar_name: event_picture.event.bar.name,
+          country_name: event_picture.event.bar.address.country.name,
+          event_id: event_picture.event.id,
+          type: "feed_photo",
+        }
+      );
+      create_feed_photo(@event_picture);
+
       if params[:event_picture][:user_ids].present?
         params[:event_picture][:user_ids].each do |user_id|
           EventPicturesUser.create(event_picture: @event_picture, user_id: user_id)
@@ -77,5 +92,17 @@ class API::V1::EventPicturesController < ApplicationController
       Rails.logger.error "JWT Error: #{e.message}"
       head :unauthorized
     end
+  end
+
+  def create_feed_photo(event_picture)
+    FeedPhoto.create(
+      user_id: current_user.id,
+      description: event_picture.description,
+      event_picture_id: event_picture.id,
+      event_name: event_picture.event.name,
+      bar_name: event_picture.event.bar.name,
+      country_name: event_picture.event.bar.address.country.name,
+      event_id: event_picture.event.id
+      )
   end
 end

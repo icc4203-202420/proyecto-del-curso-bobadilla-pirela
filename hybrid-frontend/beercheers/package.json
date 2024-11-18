@@ -16,6 +16,7 @@
     "@react-native-picker/picker": "2.7.5",
     "@react-navigation/native": "^6.1.18",
     "@rneui/themed": "^4.0.0-rc.8",
+    "actioncable": "^5.2.8-1",
     "axios": "^1.7.7",
     "expo": "~51.0.38",
     "expo-av": "^14.0.7",

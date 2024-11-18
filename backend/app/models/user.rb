@@ -32,6 +32,7 @@ class User < ApplicationRecord
   # Etiquetados en imagenes
   has_many :event_pictures_users
   has_many :event_pictures, through: :event_pictures_users
+  has_many :feeds
   def generate_jwt
     Warden::JWTAuth::UserEncoder.new.call(self, :user, nil)[0]
   end

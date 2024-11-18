@@ -6,6 +6,8 @@ class Beer < ApplicationRecord
   has_many :users, through: :reviews
   has_one_attached :image
 
+  has_many :feeds
+
   has_many :bars_beers
   has_many :bars, through: :bars_beers  
   
