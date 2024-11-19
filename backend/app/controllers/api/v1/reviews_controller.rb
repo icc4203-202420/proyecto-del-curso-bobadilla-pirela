@@ -42,19 +42,23 @@ class API::V1::ReviewsController < ApplicationController
         ActionCable.server.broadcast(
         "feed_#{current_user.id}",
         {
-          user_id: current_user.id,
+          user: current_user.id,
           handle: review.user.handle,
           beer_name: review.beer.name,
           rating: review.rating,
           beer_id: review.beer.id,
           type: "feed_review",
         }
-      );
+        );
+        bar = BarsBeer.where(beer_id: review.beer.id).first&.bar
         FeedReview.create!(
-          user_id: current_user.id,
+          user: current_user,
           rating: review.rating,
+          rating_global: review.beer.avg_rating,
           text: review.text,
-          beer_id: review.beer.id,
+          beer: review.beer,
+          bar: bar,
+          country: bar.address.country,
           );
         render json: { status: 200, message: 'Review created successfully.', review: review }, status: :ok
       else

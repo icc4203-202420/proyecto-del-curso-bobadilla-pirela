@@ -96,14 +96,14 @@ class API::V1::EventPicturesController < ApplicationController
   end
 
   def create_feed_photo(event_picture)
-    FeedPhoto.create(
-      user_id: current_user.id,
+    FeedPhoto.create!(
+      user: current_user,
       description: event_picture.description,
-      event_picture_id: event_picture.id,
-      event_name: event_picture.event.name,
+      event_picture: event_picture,
+      event: event_picture.event,
       bar_name: event_picture.event.bar.name,
       country_name: event_picture.event.bar.address.country.name,
-      event_id: event_picture.event.id
-      )
-  end
+      event_name: event_picture.event.name,
+    )
+  end  
 end
