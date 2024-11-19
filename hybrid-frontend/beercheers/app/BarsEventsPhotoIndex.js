@@ -124,7 +124,7 @@ const BarsEventsPhotoIndex = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { flexGrow: 1 }]}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
@@ -203,7 +203,7 @@ const BarsEventsPhotoIndex = () => {
           <Icon name="list" size={24} color="#E3E5AF" onPress={() => router.push('/Feed')} />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

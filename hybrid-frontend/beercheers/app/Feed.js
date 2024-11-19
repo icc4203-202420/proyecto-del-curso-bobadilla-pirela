@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Button, Image, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import ActionCable from 'actioncable';
 import { getItem } from '../Storage';
 import axios from 'axios';
@@ -19,10 +19,11 @@ const Feed = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [subscribed, setSubscribed] = useState(false);
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [filterValue, setFilterValue] = useState('');
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [bar, setBar] = useState(null); 
+  const [searchText, setSearchText] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -107,15 +108,16 @@ const Feed = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+      console.log(response.data.address)
       if (response.data) {
         return {
-          bar_address: response.data.address,
+          address: response.data.address,
         };
       }
     } catch (error) {
       console.error('Error fetching bar details:', error);
       return { bar_name: null, bar_address: null }; // Manejo de errores
+
     }
   };  
 
@@ -132,6 +134,13 @@ const Feed = ({ navigation }) => {
 
       const postsWithDetails = await Promise.all(
         response.data.map(async (post) => {
+
+          const user = await axios.get(`${BACKEND_URL}/api/v1/users/${post.user_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log(user.data)
+          const user_name = user.data.handle;
+
           if (post.event_picture_id) {
             const photos = await fetchEventPhoto(post.event_id);
             const photo = photos[0];
@@ -147,16 +156,19 @@ const Feed = ({ navigation }) => {
               country_name: post.country_name,
               tagged_users: photo?.tagged_users,
               buttonLink: `/BarsEventIndex/?barId=${post.bar_id}&id=${post.event_id}`,
+              user_handle: user_name,
               type: "feed_photo",
             };
           } else {
             let bar_address;
-            if (post.bar_id !== null) {
-              await fetchEventBar(post.bar_id);
-              bar_address = bar.bar_address
+            if (post.bar_id) {
+              const bar = await fetchEventBar(post.bar_id);
+              
+              bar_address = bar?.address
             } else {
               bar_address = null;
             }
+            
             return {
               ...post,
               time: post.created_at,
@@ -167,6 +179,7 @@ const Feed = ({ navigation }) => {
               country_name: post.country_name || 'País no disponible',
               bar_address: bar_address || 'Dirección no disponible',
               buttonLink: `/BarsEventsIndex/?id=${post.bar_id}`,
+              user_handle: user_name,
               type: "feed_review",
             };
           }
@@ -175,7 +188,6 @@ const Feed = ({ navigation }) => {
 
       setPosts(postsWithDetails);
     } catch (error) {
-      console.log(error)
       console.error('Error al cargar las publicaciones:', error);
       setError('Error al cargar las publicaciones. Inténtalo nuevamente.');
     } finally {
@@ -195,20 +207,8 @@ const Feed = ({ navigation }) => {
               setSubscribed(true);
             },
             received(data) {
-              if (data.type) {
-                console.log('Nuevo dato recibido:', data);
-                if (data.type === 'feed_photo') {
-                  setPosts((prevPosts) => [
-                    { ...data, picture: data.picture },
-                    ...prevPosts,
-                  ]);
-                } else {
-                  setPosts((prevPosts) => [
-                    { ...data, type: data.type },
-                    ...prevPosts,
-                  ]);
-                };
-              }
+              console.log('Nuevo dato recibido:', data);
+              setPosts((prevPosts) => [data.post, ...prevPosts]);
             },
           }
         );
@@ -224,70 +224,134 @@ const Feed = ({ navigation }) => {
     if (subscribed) {
       fetchInitialPosts();
     }
-  }, [subscribed, filter]);
+  }, [subscribed, filterValue, activeFilter]);
 
+  const handleSearchChange = (text) => {
+    setSearchText(text);
+    setFilterValue(text); // Actualiza el filterValue también
+  };
 
-  // Componente para renderizar cada item en el feed
-  const renderItem = ({ item }) => {
-  const isPicture = item.event_id;
-  const isReview = !item.event_id;
+  // Filtrado de publicaciones
+  const filteredPosts = posts.filter(post => {
+    const lowerCaseFilterValue = filterValue.toLowerCase();
 
-  return (
-    <View style={styles.postContainer}>
-      {isPicture && (
-        <View style={styles.picturePost}>
-          {/* Hora de la publicación */}
-          <Text style={styles.postTime}>{new Date(item.created_at).toLocaleString()}</Text>
+    if (filterValue === '') {
+      // Si no hay texto en el campo de filtro, mostrar todas las publicaciones
+      return true;
+    }
+  
+    if (activeFilter && filterValue) {
+      if (activeFilter === 'friend') {
+        // Filtrar por amigo etiquetado
+        return post.tagged_users && post.tagged_users.some(user => user.handle.toLowerCase().includes(lowerCaseFilterValue));
+      }
+  
+      if (activeFilter === 'bar') {
+        // Filtrar por bar
+        return post.bar_name && post.bar_name.toLowerCase().includes(lowerCaseFilterValue);
+      }
+  
+      if (activeFilter === 'country') {
+        // Filtrar por país
+        return post.country_name && post.country_name.toLowerCase().includes(lowerCaseFilterValue);
+      }
+  
+      if (activeFilter === 'beer') {
+        // Filtrar por cerveza
+        return post.beer_name && post.beer_name.toLowerCase().includes(lowerCaseFilterValue);
+      }
+    }
+  
+    return true; // Si no hay filtro activo o no se está buscando, devolver todas las publicaciones
+  });
 
-          {/* Imagen del evento */}
-          {item.picture && <Image source={{ uri: item.picture }} style={styles.postImage} />}
-          
-          {/* Descripción de la foto */}
-          {item.description && <Text style={styles.description}>{item.description}</Text>}
-
-          {/* Etiquetas de los usuarios */}
-          {item.tagged_users && item.tagged_users.length > 0 && (
-            <View style={styles.taggedUsersContainer}>
-              {item.tagged_users.map((user) => (
-                <Text key={user.id} style={styles.taggedUser}>@{user.handle}</Text>
-              ))}
-            </View>
-          )}
-
-          {/* Detalles del evento */}
-          {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
-          {item.bar_name && <Text style={styles.barName}>{item.bar_name}</Text>}
-          {item.country_name && <Text style={styles.country}>{item.country_name}</Text>}
-
-          {/* Botón para ver el evento */}
-          <TouchableOpacity onPress={() => router.push(`/BarsEventIndex/?barId=${item.bar_id}&id=${item.event_id}`)} style={styles.eventButton}>
-            <Text style={styles.eventButtonText}>Ver Evento</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {isReview && (
-        <View style={styles.reviewPost}>
-          {/* Detalles de la reseña */}
-          {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
-          {item.beer_name && <Text style={styles.beerName}>{item.beer_name} Review</Text>}
-          {item.text && <Text style={styles.description}>{item.text}</Text>}
-          {item.rating && <Text style={styles.rating}>Rating: {item.rating}</Text>}
-
-          {/* Detalles del bar */}
-          {item.bar_name && <Text style={styles.barName}>{item.bar_name}</Text>}
-          {item.bar_address && <Text style={styles.barAddress}>{item.bar_address}</Text>}
-          {item.bar && (
-            <TouchableOpacity onPress={() => router.push(item.buttonLink)} style={styles.eventButton}>
-              <Text style={styles.eventButtonText}>Ver Bar</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
-    </View>
-    );
+  const handleFilterChange = (filterType, value) => {
+    setActiveFilter(filterType);
+    setFilterValue(value);
+    setSearchText(''); // Limpiar el texto de búsqueda cuando se cambia el filtro
   };
   
+  const clearFilter = () => {
+    setActiveFilter(null);
+    setFilterValue('');
+    setSearchText(''); // Limpiar el texto de búsqueda
+  };
+  
+  // Componente para renderizar cada item en el feed
+  const renderItem = ({ item }) => {
+    const isPicture = item.event_id;
+    const isReview = !item.event_id;
+  
+    return (
+      <View style={styles.postContainer}>
+        {isPicture && (
+          <View style={styles.picturePost}>
+            {/* Hora de la publicación */}
+            <Text style={styles.postTime}>{new Date(item.created_at).toLocaleString()}</Text>
+
+            {item.user_handle && <Text style={styles.eventName}>{item.user_handle} ha subido una foto:</Text>}
+            {item.event_name && <Text style={styles.description}>Sobre el evento: {item.event_name}</Text>}
+            {/* Imagen del evento */}
+            {item.picture && (
+              <Image source={{ uri: item.picture }} style={styles.postImage} />
+            )}
+  
+            {/* Descripción de la foto */}
+            {item.description && <Text style={styles.description}>Descripción: {item.description}</Text>}
+  
+            {/* Etiquetas de los usuarios */}
+            {item.description && <Text style={styles.description}>USUARIOS ETIQUETADOS:</Text>}
+            {item.tagged_users && item.tagged_users.length > 0 && (
+              <View style={styles.taggedUsersContainer}>
+                {item.tagged_users.map((user) => (
+                  <Text key={user.id} style={styles.taggedUser}>@{user.handle}</Text>
+                ))}
+              </View>
+            )}
+  
+            {/* Detalles del evento */}
+            {item.bar_name && <Text style={styles.barName}>Bar: {item.bar_name}</Text>}
+            {item.country_name && <Text style={styles.barName}> País: {item.country_name}</Text>}
+  
+            {/* Botón para ver el evento */}
+            <TouchableOpacity
+              onPress={() => router.push(`/BarsEventIndex/?barId=${item.bar_id}&id=${item.event_id}`)}
+              style={styles.eventButton}
+            >
+              <Text style={styles.eventButtonText}>Ver Evento</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+  
+        {isReview && (
+          <View style={styles.reviewPost}>
+            <Text style={styles.postTime}>{new Date(item.created_at).toLocaleString()}</Text>
+            {item.beer_name && <Text style={styles.eventName}>{item.user_handle} ha escrito una Review:</Text>}
+            
+            {item.beer_name && <Text style={styles.description}>Sobre la cerveza: {item.beer_name}</Text>}
+            {item.text && <Text style={styles.description}>Reseña: {item.text}</Text>}
+            {item.rating && <Text style={styles.beerName}>Rating: {item.rating}</Text>}
+            {item.rating_global && <Text style={styles.beerName}>Rating global de la cerveza: {item.rating_global}</Text>}
+            
+            {/* Detalles del bar */}
+            {item.bar_name && <Text style={styles.barName}>Bar: {item.bar_name}</Text>}
+            {item.bar_id && 
+            <Text style={styles.barName}>
+              {item.bar_address ? `${item.bar_address.line1}, ${item.bar_address.city}, ${item.country_name}` : 'N/A'}
+            </Text>}
+            {item.bar_id && (
+              <TouchableOpacity
+                onPress={() => router.push(item.buttonLink)}
+                style={styles.eventButton}
+              >
+                <Text style={styles.eventButtonText}>Ver Bar</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   if (loading) {
     return (
@@ -321,18 +385,35 @@ const Feed = ({ navigation }) => {
       <Text style={styles.title}>Feed</Text>
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <TextInput
-        style={styles.filterInput}
-        placeholder="Filtrar por amistad, bar, país o cerveza"
-        value={filter}
-        onChangeText={setFilter}
-      />
+      <View style={styles.filtersContainer}>
+        <View style={styles.buttonRow}>
+          <Button title="Filtrar por Amigo" onPress={() => handleFilterChange('friend', 'Amigo')} color="#CFB523" />
+          <Button title="Filtrar por Bar" onPress={() => handleFilterChange('bar', 'Nombre del bar')} color="#CFB523" />
+        </View>
+        <View style={styles.buttonRow}>
+          <Button title="Filtrar por País" onPress={() => handleFilterChange('country', 'País')} color="#CFB523" />
+          <Button title="Filtrar por Cerveza" onPress={() => handleFilterChange('beer', 'Cerveza')} color="#CFB523" />
+        </View>
+        <Button title="Eliminar Filtro" onPress={clearFilter} color="#666" />
+      </View>
+
+      {activeFilter && (
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder={`Buscar por ${activeFilter}`}
+            value={searchText}
+            onChangeText={handleSearchChange}
+          />
+        </View>
+      )}
 
       <FlatList
-        data={posts}
+        data={filteredPosts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
+
     <View style={styles.bottomNavContainer}>
         <View style={styles.bottomNavAction}>
           <TouchableOpacity onPress={() => router.push('/BarsIndex')}>
@@ -384,6 +465,24 @@ const styles = StyleSheet.create({
     fontSize: 32,
     textShadow: '1px 3px 3px black',
   },
+  searchInput: {
+    backgroundColor: '#D9D9D9',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  filtersContainer: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10, // Espaciado entre filas
+  },
   postContainer: {
     marginBottom: 16,
     padding: 12,
@@ -392,6 +491,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    alignItems: 'center',
   },
   postTime: {
     fontSize: 12,
@@ -399,21 +499,24 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   postImage: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'cover',
+    width: '100%', 
+    height: undefined, 
+    aspectRatio: 1.5, 
+    resizeMode: 'cover', 
     borderRadius: 8,
-    marginVertical: 10,
+    marginVertical: 10, 
   },
   description: {
     color: 'white',
     fontSize: 14,
     marginBottom: 10,
+    textAlign: 'center',
   },
   taggedUsersContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 10,
+    justifyContent: 'center', 
   },
   taggedUser: {
     color: '#CFB523',
@@ -424,16 +527,14 @@ const styles = StyleSheet.create({
     color: '#CFB523',
     fontWeight: 'bold',
     marginBottom: 5,
+    alignItems: 'center',
+    textAlign: 'center',
   },
   barName: {
     fontSize: 16,
     color: '#E3E5AF',
     marginBottom: 5,
-  },
-  country: {
-    fontSize: 14,
-    color: '#888',
-    marginBottom: 10,
+    textAlign: 'center',
   },
   eventButton: {
     backgroundColor: '#CFB523',
@@ -451,6 +552,7 @@ const styles = StyleSheet.create({
     color: '#CFB523',
     fontWeight: 'bold',
     marginBottom: 5,
+    textAlign: 'center',
   },
   rating: {
     fontSize: 14,

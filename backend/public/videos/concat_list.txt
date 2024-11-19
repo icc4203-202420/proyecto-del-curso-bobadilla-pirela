@@ -1,3 +1,2 @@
 file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/1.jpg'
-file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/2.jpg'
-file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/3.jpg'
+file '/home/gian/Escritorio/UNIVERSIDAD/apps/proyecto-del-curso-bobadilla-pirela/backend/public/videos/6.jpg'

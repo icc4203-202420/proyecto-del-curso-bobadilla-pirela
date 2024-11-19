@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Alert, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
-import { Slider } from '@rneui/themed';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Formik } from 'formik';
+import Slider from '@react-native-community/slider';
 import * as Yup from 'yup';
 import { BACKEND_URL } from '@env';
 import { saveItem, getItem } from '../Storage';
@@ -31,6 +31,7 @@ const BeersReview = () => {
   const { id } = route.params;
   const [beerName, setBeerName] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [rating, setRating] = useState(1);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -106,7 +107,7 @@ const BeersReview = () => {
               <Text style={styles.label}>Puntaje (1-5): {values.rating}</Text>
               <Slider
                 value={values.rating}
-                onValueChange={(value) => setFieldValue('rating', value)}
+                onValueChange={(value) => setFieldValue('rating', Math.round(value * 10) / 10)}
                 maximumValue={5}
                 minimumValue={1}
                 step={0.1}
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
   },
   trackStyle: {
     height: 5,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: '#CFB523',
   },
   thumbStyle: {
     height: 20,

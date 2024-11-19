@@ -106,7 +106,7 @@ const BeersDetail = () => {
               <View style={styles.barItem}>
                 <Text style={styles.barName}>{item.name}</Text>
                 <Text style={styles.barAddress}>
-                  {item.address ? `${item.address.street}, ${item.address.city}, ${item.address.country.name}` : 'N/A'}
+                  {item.address ? `${item.address.line1}, ${item.address.city}, ${item.address.country.name}` : 'N/A'}
                 </Text>
               </View>
             )}

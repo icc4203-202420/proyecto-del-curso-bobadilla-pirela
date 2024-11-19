@@ -152,18 +152,18 @@ const BarsEventsPhoto = () => {
     } else {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (permissionResult.granted === false) {
-        Alert.alert('Permission to access gallery is required!');
+        Alert.alert("Permission to access gallery is required!");
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
-        base64: true,
+        base64: false,
       });
 
       if (!result.canceled) {
-        setPicture(result.assets[0].uri);
+        setPicture(result.assets[0]);
       }
     }
   };
@@ -179,6 +179,9 @@ const BarsEventsPhoto = () => {
     } else {
       const fileUri = picture.uri;
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      const fileBase64 = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
       formData.append('event_picture[picture]', {
         uri: picture.uri,
         name: picture.uri.split('/').pop(),
