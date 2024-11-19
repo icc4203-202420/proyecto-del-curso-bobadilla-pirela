@@ -30,6 +30,10 @@ const Feed = ({ navigation }) => {
       const storedToken = await getItem('authToken');
       const token = storedToken ? storedToken.replace(/"/g, '') : null;
       setIsLoggedIn(!!token);
+
+      if (!token) {
+        router.push('/login'); // Asegúrate de que 'login' sea el nombre correcto de la pantalla de login
+      }
     };
   
     checkLoginStatus();
@@ -288,6 +292,16 @@ const Feed = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.container}>
+        <Image source={require('../assets/icon_beercheers.png')} style={styles.icon} />
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={isLoggedIn ? handleLogout : handleLogin}
+        >
+          <Text style={styles.logoutButtonText}>{isLoggedIn ? 'Home' : 'Log In'}</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Feed</Text>
+        {error && <Text style={styles.errorText}>{error}</Text>}
         <ActivityIndicator size="large" color="#CFB523" />
         <Text>Cargando publicaciones...</Text>
       </View>
