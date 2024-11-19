@@ -110,13 +110,11 @@ const styles = StyleSheet.create({
     color: '#E3E5AF',
     marginTop: 10,
   },
-  image: {
-    width: 80,
-    height: 80,
-  },
-  image2: {
-    width: 140,
-    height: 80,
+  errorText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 18,
+    marginTop: 20,
   },
   logoutButton: {
     position: 'absolute',

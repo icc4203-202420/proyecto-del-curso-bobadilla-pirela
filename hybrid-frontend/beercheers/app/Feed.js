@@ -142,7 +142,7 @@ const Feed = ({ navigation }) => {
               bar_name: post.bar_name,
               country_name: post.country_name,
               tagged_users: photo?.tagged_users,
-              buttonLink: `/BarsEvent/${post.event}`,
+              buttonLink: `/BarsEventIndex/?barId=${post.bar_id}&id=${post.event_id}`,
               type: "feed_photo",
             };
           } else {
@@ -162,13 +162,13 @@ const Feed = ({ navigation }) => {
               bar_name: post.bar_name || 'Nombre de Bar no disponible',
               country_name: post.country_name || 'País no disponible',
               bar_address: bar_address || 'Dirección no disponible',
-              buttonLink: `/BarsEventIndex/${post.bar_id}`,
+              buttonLink: `/BarsEventsIndex/?id=${post.bar_id}`,
               type: "feed_review",
             };
           }
         })
       );
-      console.log(postsWithDetails)
+
       setPosts(postsWithDetails);
     } catch (error) {
       console.log(error)
@@ -225,52 +225,62 @@ const Feed = ({ navigation }) => {
 
   // Componente para renderizar cada item en el feed
   const renderItem = ({ item }) => {
-  
-    const isReview = item.text && !item.event_id;
-    const isPicture = item.event_id;
-  
-    return (
-      <View style={styles.postContainer}>
-        {isPicture && (
-          <View>
-            {/* Mostrar detalles específicos para picture */}
-            <Text style={styles.postTime}>{item.created_at}</Text> {/* Hora de la publicación */}
-            <Image source={{ uri: item.picture }} style={styles.postImage} />
-            {item.description && <Text style={styles.description}>{item.description}</Text>}
-  
-            {/* Etiquetas de usuarios en la foto */}
-            {item.tagged_users && item.tagged_users.length > 0 && (
-              <View style={styles.taggedUsersContainer}>
-                {item.tagged_users.map((user) => (
-                  <Text key={user.id} style={styles.taggedUser}>
-                    @{user.handle}
-                  </Text>
-                ))}
-              </View>
-            )}
-  
-            {/* Detalles del evento */}
-            {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
-            {item.bar_name && <Text style={styles.barName}>{item.bar_name}</Text>}
-            {item.country && <Text style={styles.country}>{item.country}</Text>}
-  
-            {/* Botón para ir al evento */}
-            <TouchableOpacity onPress={() => router.push(`/BarsEvent/${item.event_id}`)} style={styles.eventButton}>
-              <Text style={styles.eventButtonText}>Ver Evento</Text>
+  const isPicture = item.event_id;
+  const isReview = !item.event_id;
+
+  return (
+    <View style={styles.postContainer}>
+      {isPicture && (
+        <View style={styles.picturePost}>
+          {/* Hora de la publicación */}
+          <Text style={styles.postTime}>{new Date(item.created_at).toLocaleString()}</Text>
+
+          {/* Imagen del evento */}
+          {item.picture && <Image source={{ uri: item.picture }} style={styles.postImage} />}
+          
+          {/* Descripción de la foto */}
+          {item.description && <Text style={styles.description}>{item.description}</Text>}
+
+          {/* Etiquetas de los usuarios */}
+          {item.tagged_users && item.tagged_users.length > 0 && (
+            <View style={styles.taggedUsersContainer}>
+              {item.tagged_users.map((user) => (
+                <Text key={user.id} style={styles.taggedUser}>@{user.handle}</Text>
+              ))}
+            </View>
+          )}
+
+          {/* Detalles del evento */}
+          {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
+          {item.bar_name && <Text style={styles.barName}>{item.bar_name}</Text>}
+          {item.country_name && <Text style={styles.country}>{item.country_name}</Text>}
+
+          {/* Botón para ver el evento */}
+          <TouchableOpacity onPress={() => router.push(`/BarsEventIndex/?barId=${item.bar_id}&id=${item.event_id}`)} style={styles.eventButton}>
+            <Text style={styles.eventButtonText}>Ver Evento</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {isReview && (
+        <View style={styles.reviewPost}>
+          {/* Detalles de la reseña */}
+          {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
+          {item.beer_name && <Text style={styles.beerName}>{item.beer_name} Review</Text>}
+          {item.text && <Text style={styles.description}>{item.text}</Text>}
+          {item.rating && <Text style={styles.rating}>Rating: {item.rating}</Text>}
+
+          {/* Detalles del bar */}
+          {item.bar_name && <Text style={styles.barName}>{item.bar_name}</Text>}
+          {item.bar_address && <Text style={styles.barAddress}>{item.bar_address}</Text>}
+          {item.bar && (
+            <TouchableOpacity onPress={() => router.push(item.buttonLink)} style={styles.eventButton}>
+              <Text style={styles.eventButtonText}>Ver Bar</Text>
             </TouchableOpacity>
-          </View>
-        )}
-  
-        {isReview && (
-          <View>
-            {/* Mostrar detalles específicos para review */}
-            {item.event_name && <Text style={styles.eventName}>{item.event_name}</Text>}
-            {item.beer_name && <Text style={styles.beerName}>{item.beer_name} Review</Text>}
-            {item.text && <Text style={styles.description}>{item.text}</Text>}
-            {item.rating && <Text style={styles.rating}>Rating: {item.rating}</Text>}
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      )}
+    </View>
     );
   };
   
@@ -344,6 +354,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#303030',
+    padding: 10,
   },
   icon: {
     width: 100,
@@ -359,14 +370,98 @@ const styles = StyleSheet.create({
     fontSize: 32,
     textShadow: '1px 3px 3px black',
   },
-  postContainer: { marginBottom: 16 },
-  eventName: { fontSize: 18, color: '#CFB523', fontWeight: 'bold' },
-  postImage: { width: '100%', height: 200, resizeMode: 'contain', marginVertical: 8 },
-  beerName: { fontSize: 18, color: '#CFB523', fontWeight: 'bold' },
-  rating: { fontSize: 14, color: '#888' },
-  description: { color: 'white', textAlign: 'center', fontFamily: 'Roboto' },
-  errorText: { color: 'red' },
-  filterInput: { height: 40, borderColor: '#fff', borderWidth: 1 },
+  postContainer: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#424242',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  postTime: {
+    fontSize: 12,
+    color: '#888',
+    marginBottom: 5,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  description: {
+    color: 'white',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  taggedUsersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+  },
+  taggedUser: {
+    color: '#CFB523',
+    marginRight: 5,
+  },
+  eventName: {
+    fontSize: 18,
+    color: '#CFB523',
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  barName: {
+    fontSize: 16,
+    color: '#E3E5AF',
+    marginBottom: 5,
+  },
+  country: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 10,
+  },
+  eventButton: {
+    backgroundColor: '#CFB523',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  eventButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  beerName: {
+    fontSize: 16,
+    color: '#CFB523',
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  rating: {
+    fontSize: 14,
+    color: '#888',
+  },
+  barAddress: {
+    fontSize: 14,
+    color: '#E3E5AF',
+    marginTop: 5,
+  },
+  reviewPost: {
+    marginBottom: 10,
+  },
+  picturePost: {
+    marginBottom: 10,
+  },
+  filterInput: {
+    height: 40,
+    borderColor: '#fff',
+    borderWidth: 1,
+    color: '#fff',
+    paddingLeft: 10,
+    marginBottom: 15,
+    borderRadius: 5,
+  },
   bottomNavContainer: {
     position: 'absolute',
     bottom: 0,
