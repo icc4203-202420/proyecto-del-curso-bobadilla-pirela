@@ -4,8 +4,8 @@ class API::V1::FeedsController < ApplicationController
   # GET /api/v1/feed
   def index
     friend_ids = current_user.friends.pluck(:id)
-    feed_photos = FeedPhoto.where(user_id: [*friend_ids, current_user.id]).order(created_at: :desc).limit(50)
-    feed_reviews = FeedReview.where(user_id: [*friend_ids, current_user.id]).order(created_at: :desc).limit(50)
+    feed_photos = FeedPhoto.where(user_id: friend_ids).order(created_at: :desc).limit(50)
+    feed_reviews = FeedReview.where(user_id: friend_ids).order(created_at: :desc).limit(50)
     combined_feed = (feed_photos + feed_reviews).sort_by(&:created_at).reverse
 
     render json: combined_feed, status: :ok

@@ -41,7 +41,7 @@ Rails.application.routes.draw do
           get 'get_video'
         end
         resource :attendance, only: [:show, :create, :destroy]
-        resources :event_pictures, only: [:show]
+        resources :event_pictures, only: [:index, :show, :create, :update, :destroy]
       end
       get '/feed', to: 'feeds#index'
       resources :reviews, only: [:index, :show, :create, :update, :destroy]

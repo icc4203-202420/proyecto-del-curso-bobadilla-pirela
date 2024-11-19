@@ -161,15 +161,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_051830) do
   end
 
   create_table "feed_photos", force: :cascade do |t|
-    t.integer "bar_id", null: false
-    t.integer "country_id", null: false
+    t.string "description"
+    t.string "bar_name"
+    t.string "country_name"
+    t.string "event_name"
     t.integer "event_id", null: false
     t.integer "user_id", null: false
     t.integer "event_picture_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["bar_id"], name: "index_feed_photos_on_bar_id"
-    t.index ["country_id"], name: "index_feed_photos_on_country_id"
     t.index ["event_id"], name: "index_feed_photos_on_event_id"
     t.index ["event_picture_id"], name: "index_feed_photos_on_event_picture_id"
     t.index ["user_id"], name: "index_feed_photos_on_user_id"
@@ -179,15 +179,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_051830) do
     t.decimal "rating", precision: 10, scale: 2
     t.decimal "rating_global", precision: 10, scale: 2
     t.string "text"
-    t.integer "beer_id", null: false
+    t.string "beer_name"
+    t.string "bar_name"
+    t.string "country_name"
+    t.integer "bar_id"
     t.integer "user_id", null: false
-    t.integer "bar_id", null: false
-    t.integer "country_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["bar_id"], name: "index_feed_reviews_on_bar_id"
-    t.index ["beer_id"], name: "index_feed_reviews_on_beer_id"
-    t.index ["country_id"], name: "index_feed_reviews_on_country_id"
     t.index ["user_id"], name: "index_feed_reviews_on_user_id"
   end
 
@@ -259,14 +258,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_051830) do
   add_foreign_key "event_pictures_users", "event_pictures"
   add_foreign_key "event_pictures_users", "users"
   add_foreign_key "events", "bars"
-  add_foreign_key "feed_photos", "bars"
-  add_foreign_key "feed_photos", "countries"
   add_foreign_key "feed_photos", "event_pictures"
   add_foreign_key "feed_photos", "events"
   add_foreign_key "feed_photos", "users"
   add_foreign_key "feed_reviews", "bars"
-  add_foreign_key "feed_reviews", "beers"
-  add_foreign_key "feed_reviews", "countries"
   add_foreign_key "feed_reviews", "users"
   add_foreign_key "friendships", "bars"
   add_foreign_key "friendships", "events"

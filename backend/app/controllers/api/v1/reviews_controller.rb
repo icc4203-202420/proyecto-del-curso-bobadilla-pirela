@@ -50,16 +50,17 @@ class API::V1::ReviewsController < ApplicationController
           type: "feed_review",
         }
         );
-        bar = BarsBeer.where(beer_id: review.beer.id).first&.bar
+        bar = BarsBeer.joins(:bar).where(beer_id: review.beer.id).first&.bar
         FeedReview.create!(
           user: current_user,
           rating: review.rating,
           rating_global: review.beer.avg_rating,
           text: review.text,
-          beer: review.beer,
-          bar: bar,
-          country: bar.address.country,
-          );
+          beer_name: review.beer.name,
+          bar_name: bar&.name || '',
+          country_name: bar&.address&.country&.name || '',
+          bar: bar
+        )
         render json: { status: 200, message: 'Review created successfully.', review: review }, status: :ok
       else
         render json: { error: 'Failed to create review.' }, status: :unprocessable_entity

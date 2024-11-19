@@ -55,8 +55,6 @@ const BarsEventsPhotoIndex = () => {
           },
         });
 
-        console.log("Photos data: ", response.data.data);
-
         if (response.data.data && Array.isArray(response.data.data)) {
           const photoData = response.data.data;
           setPhotos(photoData.map(photo => ({
