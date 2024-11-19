@@ -1,6 +1,7 @@
 class FeedPhoto < ApplicationRecord
   belongs_to :user
   belongs_to :event
+  belongs_to :bar
   belongs_to :event_picture
 
   # Método para obtener la URL de la imagen

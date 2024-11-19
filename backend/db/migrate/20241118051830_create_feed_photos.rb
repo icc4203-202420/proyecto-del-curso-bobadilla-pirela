@@ -6,6 +6,7 @@ class CreateFeedPhotos < ActiveRecord::Migration[6.0]
       t.string :country_name
       t.string :event_name
       t.references :event, null: false, foreign_key: true
+      t.references :bar, null: false, foreign_key: true
       t.references :user, null: false, foreign_key: true
       t.references :event_picture, null: false, foreign_key: true
 

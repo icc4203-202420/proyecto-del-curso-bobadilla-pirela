@@ -39,18 +39,21 @@ class API::V1::ReviewsController < ApplicationController
       review = current_user.reviews.new(review_params.merge(beer_id: params[:beer_id]))
 
       if review.save
+        bar = BarsBeer.joins(:bar).where(beer_id: review.beer.id).first&.bar
         ActionCable.server.broadcast(
         "feed_#{current_user.id}",
-        {
-          user: current_user.id,
-          handle: review.user.handle,
-          beer_name: review.beer.name,
-          rating: review.rating,
-          beer_id: review.beer.id,
-          type: "feed_review",
-        }
+          {
+            user_id: current_user.id,
+            rating: review.rating,
+            rating_global: review.beer.avg_rating,
+            text: review.text,
+            beer_name: review.beer.name,
+            bar_name: bar&.name || '',
+            country_name: bar&.address&.country&.name || '',
+            bar_id: bar&.id || nil,
+            type:"feed_review"
+          }
         );
-        bar = BarsBeer.joins(:bar).where(beer_id: review.beer.id).first&.bar
         FeedReview.create!(
           user: current_user,
           rating: review.rating,

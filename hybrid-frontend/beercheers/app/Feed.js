@@ -82,7 +82,7 @@ const Feed = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.data.data && Array.isArray(response.data.data)) {
         return response.data.data.map(photo => ({
           id: photo.id,
@@ -108,7 +108,7 @@ const Feed = ({ navigation }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data.address)
+
       if (response.data) {
         return {
           address: response.data.address,
@@ -138,13 +138,13 @@ const Feed = ({ navigation }) => {
           const user = await axios.get(`${BACKEND_URL}/api/v1/users/${post.user_id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          console.log(user.data)
+
           const user_name = user.data.handle;
 
           if (post.event_picture_id) {
             const photos = await fetchEventPhoto(post.event_id);
-            const photo = photos[0];
-
+            const photo = photos.find((p) => String(p.id) === String(post.event_picture_id));
+            
             return {
               ...post,
               time: post.created_at,
@@ -155,9 +155,10 @@ const Feed = ({ navigation }) => {
               bar_name: post.bar_name,
               country_name: post.country_name,
               tagged_users: photo?.tagged_users,
-              buttonLink: `/BarsEventIndex/?barId=${post.bar_id}&id=${post.event_id}`,
+              buttonLink: `/BarsEvent/?barId=${post.bar_id}&id=${post.event_id}`,
               user_handle: user_name,
               type: "feed_photo",
+              bar_id: post.bar_id,
             };
           } else {
             let bar_address;
@@ -195,6 +196,7 @@ const Feed = ({ navigation }) => {
     }
   };
 
+  
 
   useEffect(() => {
     createAuthenticatedCable().then((cable) => {
@@ -206,9 +208,73 @@ const Feed = ({ navigation }) => {
               console.log('Canal conectado');
               setSubscribed(true);
             },
-            received(data) {
+            async received(data) {
               console.log('Nuevo dato recibido:', data);
-              setPosts((prevPosts) => [data.post, ...prevPosts]);
+  
+              // Llama a enrichedPost de forma asincrónica
+              try {
+                const enrichedPost = await (async function formatPost(data) {
+                  try {
+                    const storedToken = await getItem('authToken');
+                    const token = storedToken ? storedToken.replace(/"/g, '') : null;
+  
+                    // Obtener información del usuario
+                    const userResponse = await axios.get(`${BACKEND_URL}/api/v1/users/${data.user_id}`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    const user_name = userResponse.data.handle;
+  
+                    if (data.type === 'feed_photo') {
+                      const photos = await fetchEventPhoto(data.event_id);
+                      const photo = photos.find((p) => String(p.id) === String(data.event_picture_id));
+  
+                      return {
+                        ...data,
+                        time: data.created_at || new Date().toISOString(),
+                        description: data.description,
+                        beer_name: data.beer_name,
+                        picture: photo?.url,
+                        event_name: data.event_name,
+                        bar_name: data.bar_name,
+                        country_name: data.country_name,
+                        tagged_users: photo?.tagged_users,
+                        user_handle: user_name,
+                      };
+                    } else {
+                      let bar_address;
+                      if (data.bar_id) {
+                        const bar = await fetchEventBar(data.bar_id);
+                        bar_address = bar?.address;
+                      } else {
+                        bar_address = null;
+                      }
+  
+                      return {
+                        ...data,
+                        time: data.created_at || new Date().toISOString(),
+                        beer_name: data.beer_name,
+                        beer_rating: data.rating_global,
+                        user_rating: data.rating,
+                        bar_name: data.bar_name || 'Nombre de Bar no disponible',
+                        country_name: data.country_name || 'País no disponible',
+                        bar_address: bar_address || 'Dirección no disponible',
+                        buttonLink: `/BarsEventsIndex/?id=${data.bar_id}`,
+                        user_handle: user_name,
+                      };
+                    }
+                  } catch (error) {
+                    console.error('Error formateando el post:', error);
+                    return null;
+                  }
+                })(data);
+  
+                // Agrega el post enriquecido al estado si no es null
+                if (enrichedPost) {
+                  setPosts((prevPosts) => [enrichedPost, ...prevPosts]);
+                }
+              } catch (error) {
+                console.error('Error procesando el post recibido:', error);
+              }
             },
           }
         );
@@ -219,6 +285,7 @@ const Feed = ({ navigation }) => {
       }
     });
   }, [userId]);
+  
 
   useEffect(() => {
     if (subscribed) {
@@ -315,7 +382,7 @@ const Feed = ({ navigation }) => {
   
             {/* Botón para ver el evento */}
             <TouchableOpacity
-              onPress={() => router.push(`/BarsEventIndex/?barId=${item.bar_id}&id=${item.event_id}`)}
+              onPress={() => router.push(`/BarsEvent?barId=${item.bar_id}&id=${item.event_id}`)}
               style={styles.eventButton}
             >
               <Text style={styles.eventButtonText}>Ver Evento</Text>

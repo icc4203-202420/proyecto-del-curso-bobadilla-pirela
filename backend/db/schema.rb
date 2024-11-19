@@ -166,10 +166,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_051830) do
     t.string "country_name"
     t.string "event_name"
     t.integer "event_id", null: false
+    t.integer "bar_id", null: false
     t.integer "user_id", null: false
     t.integer "event_picture_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["bar_id"], name: "index_feed_photos_on_bar_id"
     t.index ["event_id"], name: "index_feed_photos_on_event_id"
     t.index ["event_picture_id"], name: "index_feed_photos_on_event_picture_id"
     t.index ["user_id"], name: "index_feed_photos_on_user_id"
@@ -258,6 +260,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_18_051830) do
   add_foreign_key "event_pictures_users", "event_pictures"
   add_foreign_key "event_pictures_users", "users"
   add_foreign_key "events", "bars"
+  add_foreign_key "feed_photos", "bars"
   add_foreign_key "feed_photos", "event_pictures"
   add_foreign_key "feed_photos", "events"
   add_foreign_key "feed_photos", "users"

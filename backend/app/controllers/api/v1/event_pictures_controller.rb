@@ -23,15 +23,15 @@ class API::V1::EventPicturesController < ApplicationController
         {
           user_id: current_user.id,
           description: @event_picture.description,
-          event_picture_id: @event_picture.id,
-          event_name: @event_picture.event.name,
+          event_picture: @event_picture.id,
+          event_id: @event_picture.event.id,
           bar_name: @event_picture.event.bar.name,
           country_name: @event_picture.event.bar.address.country.name,
-          event_id: @event_picture.event.id,
-          type: "feed_photo",
-          picture_url: @event_picture.url
+          event_name: @event_picture.event.name,
+          type:"feed_photo"
         }
       );
+      
       create_feed_photo(@event_picture);
 
       if params[:event_picture][:user_ids].present?
@@ -101,6 +101,7 @@ class API::V1::EventPicturesController < ApplicationController
       description: event_picture.description,
       event_picture: event_picture,
       event: event_picture.event,
+      bar: event_picture.event.bar,
       bar_name: event_picture.event.bar.name,
       country_name: event_picture.event.bar.address.country.name,
       event_name: event_picture.event.name,
